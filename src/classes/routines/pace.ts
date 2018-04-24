@@ -1,4 +1,4 @@
-import { List } from "immutable";
+import { List, is } from "immutable";
 import { Direction, moveDirection, Location } from "./../location";
 import { Stringy, GameObject } from "./../interfaces/GameObject";
 function __swapDirection(direction: Direction) : Direction {
@@ -16,14 +16,12 @@ function __swapDirection(direction: Direction) : Direction {
 export function createPaceFoo(paceCount: number, direction: Direction) {
     let paceIter = 0;
     return function (location: Location, id: number) {
-        if(paceIter < paceCount) {
-            paceIter++;
-        } else {
-            paceIter = 1; //we start at 1 as we are still pacing after direction swap
+        if(paceIter >= paceCount) {
             direction = __swapDirection(direction);
+            paceIter = 0;
         }
-        
-        // DEFECT: If location is occupied, pacing is broken.
-        return moveDirection(location, id, direction, 1)
+        let result = moveDirection(location, id, direction, 1);
+        if(!is(result, location)) paceIter++; // This ensures we actually moved the piece
+        return result;
     }
 }

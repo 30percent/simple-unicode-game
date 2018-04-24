@@ -7,20 +7,20 @@ const nodeEnv = process.env.NODE_ENV || 'development'
 const isProd = nodeEnv === 'production'
 
 const plugins = [
-  new UglifyJsPlugin({
-      parallel: true,
-      uglifyOptions: {
-        ie8: false,
-        ecma: 6,
-        warnings: true,
-        mangle: isProd, // debug false
-        output: {
-          comments: false,
-          beautify: !isProd,  // debug true
-        }
-      },
-      sourceMap: true
-  }),
+  // new UglifyJsPlugin({
+  //     parallel: true,
+  //     uglifyOptions: {
+  //       ie8: false,
+  //       ecma: 6,
+  //       warnings: true,
+  //       mangle: isProd, // debug false
+  //       output: {
+  //         comments: false,
+  //         beautify: !isProd,  // debug true
+  //       }
+  //     },
+  //     sourceMap: true
+  // }),
   new webpack.DefinePlugin({
     'process.env': {
       // eslint-disable-line quote-props
@@ -31,11 +31,11 @@ const plugins = [
     title: 'Typescript Webpack Starter',
     template: '!!ejs-loader!src/index.html'
   }),
-  new webpack.optimize.CommonsChunkPlugin({
-    name: 'vendor',
-    minChunks: Infinity,
-    filename: 'vendor.bundle.js'
-  }),
+  // new webpack.optimize.CommonsChunkPlugin({
+  //   name: 'vendor',
+  //   minChunks: Infinity,
+  //   filename: 'vendor.bundle.js'
+  // }),
   new webpack.LoaderOptionsPlugin({
       options: {
           tslint: {
@@ -51,19 +51,20 @@ if (!isProd) {
 }
 
 var config = {
-  devtool: isProd ? 'hidden-source-map' : 'source-map',
+  devtool: isProd ? 'hidden-source-map' : 'eval-source-map',
   context: path.resolve('./src'),
   entry: {
     app: './index.ts',
     vendor: './vendor.ts'
   },
+  mode: isProd ? 'production' : 'development',
   output: {
     path: path.resolve('./dist'),
     filename: '[name].bundle.js',
     sourceMapFilename: '[name].bundle.map',
-    devtoolModuleFilenameTemplate: function(info) {
-      return 'file:///' + info.absoluteResourcePath
-    }
+    // devtoolModuleFilenameTemplate: function(info) {
+    //   return 'file:///' + info.absoluteResourcePath
+    // }
   },
   module: {
     rules: [
@@ -71,14 +72,20 @@ var config = {
         enforce: 'pre',
         test: /\.ts?$/,
         exclude: ['node_modules'],
-        use: ['awesome-typescript-loader', 'source-map-loader']
+        use: ['ts-loader', 'source-map-loader']
       },
-      {
-        test: /\.(js|ts)$/,
-        loader: 'istanbul-instrumenter-loader',
-        exclude: [/\/node_modules\//],
-        query: {
-          esModules: true
+      // {
+      //   test: /\.(js|ts)$/,
+      //   loader: 'istanbul-instrumenter-loader',
+      //   exclude: [/\/node_modules\//],
+      //   query: {
+      //     esModules: true
+      //   }
+      // },
+      {  
+        test: /\.(ttf|eot|woff|woff2)$/,
+        loader: 'file-loader',
+        options: {
         }
       },
       { test: /\.html$/, loader: 'html-loader' },

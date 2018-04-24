@@ -6,6 +6,7 @@ import { Stringy, GameObject } from "./interfaces/GameObject";
 export type LocationParams = {
   name: string;
   roomLimit: Vector;
+  symbol?: string;
 };
 
 export enum Direction {
@@ -30,9 +31,11 @@ export class Location
     _id: 0,
     name: "__unnamed__",
     objects: Map<number, Vector>(),
-    roomLimit: { x: 0, y: 0 } as Vector
+    roomLimit: { x: 0, y: 0 } as Vector,
+    symbol: "\u06E9"
   })
   implements GameObject {
+  symbol: string;
   _id: number;
   name: string;
   // This seems counterintuitive, but we're only going to ever be modifying the Vector.
@@ -55,20 +58,6 @@ export class Location
       JSON.stringify(v)
     )}`;
     return result;
-  }
-  // Factor this out, allow for different methods of drawing. (Return room object?)
-  drawRoom(): string {
-    return fp
-      .map(y => {
-        return fp
-          .map(x => {
-            return this.isPositionOccupied(new Vector({ x: x, y: y }))
-              ? "o"
-              : "_";
-          }, fp.range(0, this.roomLimit.x))
-          .join(" | ");
-      }, fp.range(0, this.roomLimit.y))
-      .join("\n");
   }
 
   // Support difference sizes
@@ -96,6 +85,13 @@ export class Location
     return !fp.isNil(this.objects.find(p => fp.isEqual(toE(pos), toE(p))));
   }
 
+  objectIdAtPosition(pos: Vector): number {
+    // Immutable adds an owner id which breaks basic fp.isEqual support.
+    var toE = fp.pick(['x', 'y']);
+    // cannot use "Map.includes" as there is no apparent way to enhance Immutable.is
+    return this.objects.findKey(p => fp.isEqual(toE(pos), toE(p)));
+  }
+
   isPositionInbounds(pos: Vector): boolean {
     return (
       pos.x < this.roomLimit.x &&
@@ -106,7 +102,7 @@ export class Location
   }
 }
 
-// TODO: Handle out of bounds logic (easiest, just create walls around room?)
+// TODO: Add enter room logic
 export function moveObject(
   location: Location,
   objectId: number,
@@ -129,6 +125,20 @@ export function moveObject(
     return location;
   }
   return location.setIn(["objects", objectId], pos) as Location;
+}
+
+export function simpleLocationDraw(location: Location) {
+  return fp
+    .map(y => {
+      return fp
+        .map(x => {
+          return location.isPositionOccupied(new Vector({ x: x, y: y }))
+            ? "o"
+            : "_";
+        }, fp.range(0, location.roomLimit.x))
+        .join(" | ");
+    }, fp.range(0, location.roomLimit.y))
+    .join("\n");
 }
 
 export function moveDirection(

@@ -9,6 +9,7 @@ import { HealthInt } from "./interfaces/Health";
 export type PersonParams = {
   name: string;
   hp: number;
+  symbol?: string;
 };
 
 export class Person
@@ -16,9 +17,11 @@ export class Person
     hp: 0,
     _id: 0,
     name: "",
+    symbol: "o",
     healthStatuses: Immutable.Set<HealthStatus>()
   })
   implements GameObject, HealthInt, HealthStatusHolder {
+  symbol: any;
   hp: number;
   _id: number;
   name: string;
