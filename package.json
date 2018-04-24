@@ -46,6 +46,9 @@
     "webpack-dev-server": "2.5.1"
   },
   "dependencies": {
+    "@types/bluebird": "^3.5.20",
+    "@types/node": "^9.6.6",
+    "bluebird": "^3.5.1",
     "cuid": "^2.1.1",
     "immutable": "^3.8.2",
     "lodash": "^4.17.5"
