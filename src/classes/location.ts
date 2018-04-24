@@ -56,8 +56,8 @@ export class Location
     )}`;
     return result;
   }
-
-  drawRoom() {
+  // Factor this out, allow for different methods of drawing. (Return room object?)
+  drawRoom(): string {
     return fp
       .map(y => {
         return fp
@@ -90,8 +90,10 @@ export class Location
   }
 
   isPositionOccupied(pos: Vector): boolean {
+    // Immutable adds an owner id which breaks basic fp.isEqual support.
+    var toE = fp.pick(['x', 'y']);
     // cannot use "Map.includes" as there is no apparent way to enhance Immutable.is
-    return !fp.isNil(this.objects.find(p => fp.isEqual(p, pos)));
+    return !fp.isNil(this.objects.find(p => fp.isEqual(toE(pos), toE(p))));
   }
 
   isPositionInbounds(pos: Vector): boolean {
