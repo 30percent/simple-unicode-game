@@ -62,16 +62,16 @@ export class Location
 
   // Support difference sizes
   // Check conflicts
-  addObject(pos: Vector, object: GameObject): Location {
+  addObject(pos: Vector, objectId: number): Location {
     if (this.isPositionOccupied(pos) || !this.isPositionInbounds(pos)) {
       console.error(
         `Position: ${JSON.stringify(
           pos
-        )} is occupied. ${object.asString()} was not added`
+        )} is occupied. ${objectId} was not added`
       );
       return this;
     }
-    return this.set("objects", this.objects.set(object._id, pos)) as this;
+    return this.set("objects", this.objects.set(objectId, pos)) as this;
   }
 
   hasObject(object: GameObject): boolean {
@@ -101,6 +101,16 @@ export class Location
     );
   }
 }
+
+export function addObjectToLocation(
+  location: Location,
+  objectId: number,
+  pos: Vector
+){
+  if (location.isPositionOccupied(pos) || !location.isPositionInbounds(pos)) {
+    return location;
+  }
+  return location.set("objects", location.objects.set(objectId, pos)) as Location;}
 
 // TODO: Add enter room logic
 export function moveObject(
@@ -141,6 +151,34 @@ export function simpleLocationDraw(location: Location) {
     .join("\n");
 }
 
+export function getVectorFromDirection(
+  location: Location,
+  objectId: number,
+  direction: Direction,
+  amount: number
+) {
+  let curLoc: Vector = location.objects.get(objectId);
+  let newLoc: Vector = curLoc;
+  switch (direction) {
+    case Direction.Up:
+      newLoc = curLoc.set("y", curLoc.y - amount) as Vector;
+      break;
+    case Direction.Down:
+      newLoc = curLoc.set("y", curLoc.y + amount) as Vector;
+      break;
+    case Direction.Left:
+      newLoc = curLoc.set("x", curLoc.x - amount) as Vector;
+      break;
+    case Direction.Right:
+      newLoc = curLoc.set("x", curLoc.x + amount) as Vector;
+      break;
+    default:
+      //do nothing (keep position);
+      break; 
+  }
+  return newLoc;
+}
+
 export function moveDirection(
   location: Location,
   objectId: number,
@@ -163,7 +201,8 @@ export function moveDirection(
       newLoc = curLoc.set("x", curLoc.x + amount) as Vector;
       break;
     default:
-      console.error();
+      //do nothing (keep position);
+      break; 
   }
   return moveObject(location, objectId, new Vector(newLoc));
 }
