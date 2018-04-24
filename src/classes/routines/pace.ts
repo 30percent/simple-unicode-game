@@ -13,7 +13,7 @@ function __swapDirection(direction: Direction) : Direction {
             return Direction.Left;
     }
 }
-export function createPaceFoo(paceCount: number, direction: Direction) {
+export function createPaceFoo(paceCount: number, direction: Direction): (location: Location, id: number) => Location {
     let paceIter = 0;
     return function (location: Location, id: number) {
         if(paceIter >= paceCount) {

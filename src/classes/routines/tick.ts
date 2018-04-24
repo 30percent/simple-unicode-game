@@ -1,5 +1,5 @@
 import * as fp from 'lodash/fp';
-import * as Promise from 'Bluebird';
+import * as Promise from 'bluebird';
 
 export function tickFoo(count: number, time: number, tickAction: Function): Promise<any> {
     let curProm = Promise.resolve("");

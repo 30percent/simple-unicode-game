@@ -1,36 +1,30 @@
-import { Person } from "./classes/person";
-import { Stringy } from "./classes/interfaces/GameObject";
-import { createPaceFoo } from "./classes/routines/pace";
-import { isHealthStatusHolder } from "./classes/interfaces/StatusEffects";
-import { HealthStatus } from "./classes/interfaces/StatusEffects";
-import { addHealthStatus } from "./classes/interfaces/StatusEffects";
-import { execHealthStatus } from "./classes/interfaces/StatusEffects";
-import { HealthInt } from "./classes/interfaces/Health";
-import {
-  Location,
-  moveObject,
-  moveDirection,
-  Direction,
-  Vector,
-  simpleLocationDraw
-} from "./classes/location";
-import { List } from "immutable";
-import { modifyHealth } from "./classes/interfaces/Health";
-import { GameObject } from "./classes/interfaces/GameObject";
-import * as fp from "lodash/fp";
-import { HealthStatusHolder } from "./classes/interfaces/StatusEffects";
-import { tickFoo } from "./classes/routines/tick";
 import * as Promise from "bluebird";
+import { Set } from "immutable";
+import * as fp from "lodash/fp";
+
+import { locationMoveDirectionWithEntry } from "./classes/enhancements/location-enhancements";
+import { GameObject } from "./classes/interfaces/GameObject";
+import { modifyHealth } from "./classes/interfaces/Health";
+import {
+  addHealthStatus,
+  execHealthStatus,
+  HealthStatus,
+  isHealthStatusHolder
+} from "./classes/interfaces/StatusEffects";
+import { Direction, Location, Vector } from "./classes/location";
+import { Person } from "./classes/person";
+import { createPaceFoo } from "./classes/routines/pace";
+import { tickFoo } from "./classes/routines/tick";
+import { getCurrentLocation } from "./classes/state";
 
 function __getId(object: GameObject | number): number {
   return fp.isObject(object) ? (object as GameObject)._id : (object as number);
 }
 
-let state = List<GameObject>();
 let paceRight = createPaceFoo(4, Direction.Right);
-export function init() {
+export function init(): Set<GameObject> {
   let marg = new Person({ name: "Margaret", hp: 10 });
-  let mary = new Person({ name: "Mary", hp: 10 });
+  let mary = new Person({ name: "Mary", hp: 10, symbol: "M" });
   let childRoom = new Location({
     name: "Bedroom",
     roomLimit: new Vector({ x: 4, y: 4 }),
@@ -43,48 +37,88 @@ export function init() {
   let home = new Location({
     name: "Home",
     roomLimit: new Vector({ x: 10, y: 10 })
-  })
-    .addObject(new Vector({ x: 0, y: 3 }), mary)
-    .addObject(new Vector({ x: 0, y: 4 }), jack)
-    .addObject(new Vector({ x: 5, y: 7}), childRoom);
+  });
+  // add to locations
+  home = home
+    .addObject(new Vector({ x: 0, y: 3 }), mary._id)
+    .addObject(new Vector({ x: 0, y: 4 }), jack._id)
+    .addObject(new Vector({ x: 5, y: 7 }), childRoom._id);
 
-  state = List<GameObject>([home, jack, mary, marg, childRoom]);
+  childRoom = childRoom.addObject(new Vector({ x: 0, y: 2 }), home._id);
+
+  return Set<GameObject>([home, jack, mary, marg, childRoom]);
 }
-
 
 // Replace with Generator at earliest convenience
-export function startTicking(toCall: (currentLocation: List<GameObject>) => any) {
-    let inState = state;
-    tickFoo(0, 500, () => {
-        return Promise.method((input) => {
-            inState = tick(inState);
-            return inState;
-          })(null).then(toCall);
-    })
-  
-}
-let toMove: Direction = null;
-export function moveYou(direction: Direction) {
-    toMove = direction;
+export function startTicking(
+  state: Set<GameObject>,
+  curLocation: Location,
+  toCall: (state: Set<GameObject>) => any
+) {
+  let inState = state;
+  tickFoo(0, 500, () => {
+    return Promise.method(input => {
+      inState = tick(inState, curLocation._id);
+      return inState;
+    })(null).then(toCall);
+  });
 }
 
-function tick(state: List<GameObject>): List<GameObject> {
-  return state.map((object: GameObject, index: number) => {
-    let newO = object;
-    if (isHealthStatusHolder(object)) {
-      newO = execHealthStatus(object);
-    }
-    if (index == 0 && object instanceof Location) {
-      newO = paceRight(object, __getId(state.get(2))); // just an example...
-      if(toMove !== null) {
-            newO = moveDirection(newO as Location, __getId(state.get(1)), toMove, 1);
-          toMove = null;
+function tick(oldState: Set<GameObject>, locationId: number): Set<GameObject> {
+  let newStateImm = oldState;
+  return newStateImm.withMutations(newState => {
+    newState.forEach((object: GameObject) => {
+      let newO = object;
+      if (isHealthStatusHolder(object)) {
+        newO = execHealthStatus(object);
       }
+      if (object instanceof Location && fp.isEqual(object._id, locationId)) {
+        let mary = newState.find(obj => obj.symbol === "M");
+        newO = paceRight(object, mary._id); // just an example...
+      }
+      if (newO !== object) {
+        newState = newState.remove(object).add(newO);
+      }
+    });
+    let userPerson = newState.find(obj => obj.symbol === "J")._id;
+    return moveUser(newState, userPerson);
+  });
+}
+
+let toMove: Direction = null;
+export function moveYou(direction: Direction) {
+  if (direction) toMove = direction;
+}
+function moveUser(oldState: Set<GameObject>, userId: number) {
+  let newState = oldState;
+  let locationId = getCurrentLocation(newState, userId)._id;
+  if (toMove !== null) {
+    let curLocation = newState.find(obj => obj._id == locationId) as Location;
+    let locations = locationMoveDirectionWithEntry(
+      newState,
+      curLocation,
+      userId,
+      toMove,
+      1
+    );
+    if (locations.firstLoc) {
+      newState = newState
+        .delete(newState.find(obj => obj._id == locations.firstLoc._id))
+        .add(locations.firstLoc);
     }
-    return newO;
-  }) as List<GameObject>;
+    if (locations.secondLoc) {
+      newState = newState
+        .delete(newState.find(
+          obj => obj._id == locations.secondLoc._id
+        ) as Location)
+        .add(locations.secondLoc);
+    }
+    toMove = null;
+  }
+  return newState;
 }
 
 function clearStdout() {
+  // undefined in
   process.stdout.write("\x1B[2J\x1B[0f");
 }
