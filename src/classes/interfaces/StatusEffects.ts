@@ -36,6 +36,7 @@ export function execHealthStatus<T extends HealthStatusHolder>(obj: T): T {
       switch (status) {
         case HealthStatus.Poison:
           mutObj.set("hp", mutObj.hp - 1);
+          if(mutObj.hp <= 1) mutObj.set('healthStatuses', mutObj.healthStatuses.remove(HealthStatus.Poison)); // You can't die from poison
           break;
         default:
           break;

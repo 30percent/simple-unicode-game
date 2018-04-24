@@ -11,7 +11,8 @@ import {
   moveObject,
   moveDirection,
   Direction,
-  Vector
+  Vector,
+  simpleLocationDraw
 } from "./classes/location";
 import { List } from "immutable";
 import { modifyHealth } from "./classes/interfaces/Health";
@@ -30,8 +31,13 @@ let paceRight = createPaceFoo(4, Direction.Right);
 export function init() {
   let marg = new Person({ name: "Margaret", hp: 10 });
   let mary = new Person({ name: "Mary", hp: 10 });
+  let childRoom = new Location({
+    name: "Bedroom",
+    roomLimit: new Vector({ x: 4, y: 4 }),
+    symbol: "\u0298"
+  });
   let jack = addHealthStatus(
-    modifyHealth(new Person({ name: "Jack", hp: 10 }), -2),
+    modifyHealth(new Person({ name: "Jack", hp: 10, symbol: "J" }), -2),
     HealthStatus.Poison
   );
   let home = new Location({
@@ -39,18 +45,20 @@ export function init() {
     roomLimit: new Vector({ x: 10, y: 10 })
   })
     .addObject(new Vector({ x: 0, y: 3 }), mary)
-    .addObject(new Vector({ x: 0, y: 4 }), jack);
+    .addObject(new Vector({ x: 0, y: 4 }), jack)
+    .addObject(new Vector({ x: 5, y: 7}), childRoom);
 
-  state = List<GameObject>([home, jack, mary, marg]);
+  state = List<GameObject>([home, jack, mary, marg, childRoom]);
 }
 
 
 // Replace with Generator at earliest convenience
-export function startTicking(toCall: (locDraw: string) => any) {
+export function startTicking(toCall: (currentLocation: List<GameObject>) => any) {
+    let inState = state;
     tickFoo(0, 500, () => {
         return Promise.method((input) => {
-            tick();
-            return draw();
+            inState = tick(inState);
+            return inState;
           })(null).then(toCall);
     })
   
@@ -60,8 +68,8 @@ export function moveYou(direction: Direction) {
     toMove = direction;
 }
 
-function tick() {
-  let newState = state.map((object: GameObject, index: number) => {
+function tick(state: List<GameObject>): List<GameObject> {
+  return state.map((object: GameObject, index: number) => {
     let newO = object;
     if (isHealthStatusHolder(object)) {
       newO = execHealthStatus(object);
@@ -74,20 +82,9 @@ function tick() {
       }
     }
     return newO;
-  });
-  state = newState;
+  }) as List<GameObject>;
 }
 
 function clearStdout() {
   process.stdout.write("\x1B[2J\x1B[0f");
-}
-function draw() {
-  let result = "";
-  state.map((object: GameObject) => {
-    if (object instanceof Location) {
-      result = object.drawRoom();
-    } else {
-    }
-  });
-  return result;
 }

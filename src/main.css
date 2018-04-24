@@ -1,0 +1,15 @@
+@font-face {
+  font-family: "Dejavu-Sans-Mono";
+  src: url("./assets/DejaVuSansMono.eot") format("embedded-opentype")
+    url("./assets/DejaVuSansMono.woff") format("woff")
+    url("./assets/DejaVuSansMono.woff2") format("woff2")
+    url("./assets/DejaVuSansMono.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Free-Mono";
+  src: url("./assets/FreeMono.ttf") format("truetype");
+}
+pre#first-location {
+  font-family: "Free-Mono";
+}

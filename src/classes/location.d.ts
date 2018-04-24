@@ -23,11 +23,11 @@ export declare class Location extends Location_base implements GameObject {
     roomLimit: Vector;
     constructor(params: LocationParams);
     asString(): string;
-    drawRoom(): string;
     addObject(pos: Vector, object: GameObject): Location;
     hasObject(object: GameObject): boolean;
     isPositionOccupied(pos: Vector): boolean;
     isPositionInbounds(pos: Vector): boolean;
 }
 export declare function moveObject(location: Location, objectId: number, pos: Vector): Location;
+export declare function simpleLocationDraw(location: Location): string;
 export declare function moveDirection(location: Location, objectId: number, direction: Direction, amount: number): Location;

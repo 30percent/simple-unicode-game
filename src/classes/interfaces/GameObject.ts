@@ -6,4 +6,5 @@ export interface Stringy {
 
 export interface GameObject extends Stringy{
     _id: number;
+    symbol: string;
 }
