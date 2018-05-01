@@ -1,10 +1,11 @@
-import { Record, Collection } from "immutable";
+import { Record, Collection } from 'immutable';
 
 export interface Stringy {
-    asString(): string;
+  asString(): string;
 }
 
-export interface GameObject extends Stringy{
-    _id: number;
-    symbol: string;
+export interface GameObject extends Stringy {
+  _id: number;
+  symbol: string;
+  solid: boolean;
 }
