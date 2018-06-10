@@ -1,5 +1,5 @@
 import * as Promise from 'bluebird';
-import { Set } from 'immutable';
+import { HealthInt, isHealth } from './classes/interfaces/Health';
 import * as fp from 'lodash/fp';
 
 import { locationMoveDirectionWithEntry } from './classes/enhancements/location-enhancements';
@@ -22,46 +22,6 @@ function __getId(object: GameObject | number): number {
   return fp.isObject(object) ? (object as GameObject)._id : (object as number);
 }
 
-let paceRight = createPaceFoo(4, Direction.Right);
-export function init(): Set<GameObject> {
-  let marg = new Person({ name: 'Margaret', hp: 10 });
-  let mary = new Person({ name: 'Mary', hp: 10, symbol: 'M' });
-  let childRoom = new Location({
-    name: 'Bedroom',
-    roomLimit: new Vector({ x: 4, y: 4 }),
-    symbol: '\u0298',
-  });
-  let jack = addHealthStatus(
-    modifyHealth(new Person({ name: 'Jack', hp: 10, symbol: 'J' }), -2),
-    HealthStatus.Poison,
-  );
-  let home = new Location({
-    name: 'Home',
-    roomLimit: new Vector({ x: 10, y: 10 }),
-  });
-  let bed = new Furniture({
-    name: 'Bed',
-    symbol: '\u229f',
-    effect: (object: GameObject) => {
-      if (object instanceof Person) {
-        return object.update('hp', (hp: number) => hp + 1) as Person;
-      }
-      return object;
-    },
-  });
-  // add to locations
-  home = home
-    .addObject(new Vector({ x: 0, y: 3 }), mary._id)
-    .addObject(new Vector({ x: 0, y: 4 }), jack._id)
-    .addObject(new Vector({ x: 5, y: 7 }), childRoom._id);
-
-  childRoom = childRoom
-    .addObject(new Vector({ x: 0, y: 2 }), home._id)
-    .addObject(new Vector({ x: 3, y: 2 }), bed._id);
-
-  return Set<GameObject>([home, jack, mary, marg, childRoom, bed]);
-}
-
 // Replace with Generator at earliest convenience
 export function startTicking(
   state: Set<GameObject>,
@@ -77,42 +37,50 @@ export function startTicking(
   });
 }
 
+let paceRight = createPaceFoo(4, Direction.Right);
 function tick(oldState: Set<GameObject>, locationId: number): Set<GameObject> {
-  let newStateImm = oldState;
-  return newStateImm.withMutations((newState) => {
-    newState.forEach((object: GameObject) => {
-      let newO = object;
-      if (isHealthStatusHolder(object)) {
-        newO = execHealthStatus(object);
-      }
-      if (object instanceof Person) {
-        //currently handling furniture by person, but this could change
-        let loc = getCurrentLocation(newState, object._id);
-        if (loc) {
-          let pointInLoc = loc.objects.get(object._id);
-          let furnId = loc.objects.findKey(
-            (vect: Vector, id: number) =>
-              id !== object._id && vectEqual(vect, pointInLoc),
-          );
-          let furn = getObjectById(newState, furnId);
-          if (furn instanceof Furniture) {
-            newO = furn.effect(object);
-          }
+  let newState = fp.cloneDeep(oldState);
+
+  newState.forEach((object: GameObject) => {
+    let newO = object;
+    if (isHealthStatusHolder(object)) {
+      newO = execHealthStatus(object);
+    }
+    if (object instanceof Person) {
+      //currently handling furniture by person, but this could change
+      let loc = getCurrentLocation(newState, object._id);
+      if (loc) {
+        let pointInLoc = loc.objects.get(object._id);
+        let furnId = fp.flow(
+          fp.find(
+            (entry) =>
+              entry[0] !== object._id && vectEqual(entry[1], pointInLoc),
+          ),
+          fp.get('0'),
+        )(Array.from(loc.objects.entries()));
+
+        let furn = getObjectById(newState, furnId);
+        if (furn instanceof Furniture) {
+          newO = furn.effect(object);
         }
       }
-      if (object instanceof Location) {
-        if (fp.isEqual(object._id, locationId)) {
-          let mary = newState.find((obj) => obj.symbol === 'M');
-          newO = paceRight(object, mary._id); // just an example...
-        }
+    }
+    if (object instanceof Location) {
+      if (fp.isEqual(object._id, locationId)) {
+        fp.flow(fp.find((obj: GameObject) => obj.symbol === 'M'), (obj) =>
+          paceRight(object, obj._id),
+        )(Array.from(newState.values()));
       }
-      if (newO !== object) {
-        newState = newState.remove(object).add(newO);
-      }
-    });
-    let userPerson = newState.find((obj) => obj.symbol === 'J')._id;
-    return moveUser(newState, userPerson);
+    }
+    if (newO !== object) {
+      newState.delete(object);
+      newState.add(newO);
+    }
   });
+  newState = fp.flow(fp.find((obj: GameObject) => obj.symbol === 'J'), (obj) =>
+    moveUser(newState, obj._id),
+  )(Array.from(newState.values()));
+  return newState;
 }
 
 let toMove: Direction = null;
@@ -123,7 +91,10 @@ function moveUser(oldState: Set<GameObject>, userId: number) {
   let newState = oldState;
   let locationId = getCurrentLocation(newState, userId)._id;
   if (toMove !== null) {
-    let curLocation = newState.find((obj) => obj._id == locationId) as Location;
+    let curLocation = fp.find(
+      (obj: GameObject) => obj._id === locationId,
+      Array.from(newState.values()),
+    ) as Location;
     let locations = locationMoveDirectionWithEntry(
       newState,
       curLocation,
@@ -131,18 +102,6 @@ function moveUser(oldState: Set<GameObject>, userId: number) {
       toMove,
       1,
     );
-    if (locations.firstLoc) {
-      newState = newState
-        .delete(newState.find((obj) => obj._id == locations.firstLoc._id))
-        .add(locations.firstLoc);
-    }
-    if (locations.secondLoc) {
-      newState = newState
-        .delete(newState.find(
-          (obj) => obj._id == locations.secondLoc._id,
-        ) as Location)
-        .add(locations.secondLoc);
-    }
     toMove = null;
   }
   return newState;

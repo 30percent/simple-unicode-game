@@ -1,8 +1,8 @@
-import { Record } from 'immutable';
 import * as fp from 'lodash/fp';
 import * as cuid from 'cuid';
 
 import { GameObject } from './interfaces/GameObject';
+import { assign } from 'lodash';
 
 export type FurnitureParams = {
   name: string;
@@ -10,16 +10,7 @@ export type FurnitureParams = {
   effect?: (object: GameObject) => GameObject;
 };
 
-export class Furniture
-  extends Record({
-    _id: 0,
-    name: '',
-    symbol: 'o',
-    solid: false,
-    occupant: 0,
-    effect: (o: GameObject) => o,
-  })
-  implements GameObject {
+export class Furniture implements GameObject {
   _id: number;
   symbol: string;
   solid: false;
@@ -33,7 +24,7 @@ export class Furniture
       },
       params,
     );
-    super(toSup);
+    Object.assign(this, toSup);
   }
 
   asString(): string {

@@ -1,8 +1,8 @@
-import { Record, Map, is } from 'immutable';
 import * as cuid from 'cuid';
 import * as fp from 'lodash/fp';
 import { Stringy, GameObject } from './interfaces/GameObject';
-
+import { assign } from 'lodash';
+export type Identifier = number;
 export type LocationParams = {
   name: string;
   roomLimit: Vector;
@@ -16,7 +16,7 @@ export enum Direction {
   Right,
 }
 
-export class Vector extends Record({ x: 0, y: 0 }) {
+export interface Vector {
   x: number;
   y: number;
 }
@@ -31,36 +31,28 @@ type VectorMut = {
   y: number;
 };
 
-export class Location
-  extends Record({
-    _id: 0,
-    name: '__unnamed__',
-    objects: Map<number, Vector>(),
-    roomLimit: { x: 0, y: 0 } as Vector,
-    solid: true,
-    symbol: '\u06E9',
-  })
-  implements GameObject {
-  symbol: string;
+export class Location implements GameObject {
+  symbol: string = '\u0298';
   _id: number;
   name: string;
   solid: boolean;
   // This seems counterintuitive, but we're only going to ever be modifying the Vector.
-  objects: Map<number, Vector>;
+  objects: Map<Identifier, Vector>;
   roomLimit: Vector;
 
   constructor(params: LocationParams) {
     let toSup = fp.assign(
       {
         _id: cuid(),
+        objects: new Map<number, Vector>(),
       },
       params,
     );
-    super(toSup);
+    Object.assign(this, toSup);
   }
 
   asString() {
-    let objects = this.objects.valueSeq().toJS();
+    let objects = Array.from(this.objects.values());
     let result = `Name: ${this.name}. Objects: ${objects.map((v: any) =>
       JSON.stringify(v),
     )}`;
@@ -78,7 +70,8 @@ export class Location
       );
       return this;
     }
-    return this.set('objects', this.objects.set(objectId, pos)) as this;
+    this.objects.set(objectId, pos);
+    return this;
   }
 
   hasObject(object: GameObject): boolean {
@@ -88,15 +81,22 @@ export class Location
   isPositionOccupied(pos: Vector): boolean {
     // Immutable adds an owner id which breaks basic fp.isEqual support.
     var toE = fp.pick(['x', 'y']);
-    // cannot use "Map.includes" as there is no apparent way to enhance Immutable.is
-    return !fp.isNil(this.objects.find((p) => fp.isEqual(toE(pos), toE(p))));
+    return (
+      fp.find(
+        (p) => fp.isEqual(toE(p), pos),
+        Array.from(this.objects.values()),
+      ) != null
+    );
   }
 
   objectIdAtPosition(pos: Vector): number {
     // Immutable adds an owner id which breaks basic fp.isEqual support.
     var toE = fp.pick(['x', 'y']);
     // cannot use "Map.includes" as there is no apparent way to enhance Immutable.is
-    return this.objects.findKey((p) => fp.isEqual(toE(pos), toE(p)));
+    return fp.flow(
+      fp.find((entry) => fp.isEqual(toE(entry[1]), pos)),
+      fp.get('0'),
+    )(Array.from(this.objects.entries()));
   }
 
   isPositionInbounds(pos: Vector): boolean {
@@ -117,10 +117,8 @@ export function addObjectToLocation(
   if (location.isPositionOccupied(pos) || !location.isPositionInbounds(pos)) {
     return location;
   }
-  return location.set(
-    'objects',
-    location.objects.set(objectId, pos),
-  ) as Location;
+  location.objects.set(objectId, pos);
+  return location;
 }
 
 // TODO: Add enter room logic
@@ -145,7 +143,8 @@ export function moveObject(
     );
     return location;
   }
-  return location.setIn(['objects', objectId], pos) as Location;
+  location.objects.set(objectId, pos);
+  return location;
 }
 
 export function simpleLocationDraw(location: Location) {
@@ -153,9 +152,7 @@ export function simpleLocationDraw(location: Location) {
     .map((y) => {
       return fp
         .map((x) => {
-          return location.isPositionOccupied(new Vector({ x: x, y: y }))
-            ? 'o'
-            : '_';
+          return location.isPositionOccupied({ x: x, y: y }) ? 'o' : '_';
         }, fp.range(0, location.roomLimit.x))
         .join(' | ');
     }, fp.range(0, location.roomLimit.y))
@@ -169,19 +166,19 @@ export function getVectorFromDirection(
   amount: number,
 ) {
   let curLoc: Vector = location.objects.get(objectId);
-  let newLoc: Vector = curLoc;
+  let newLoc: Vector = fp.clone(curLoc);
   switch (direction) {
     case Direction.Up:
-      newLoc = curLoc.set('y', curLoc.y - amount) as Vector;
+      newLoc = fp.set('y', curLoc.y - amount, curLoc) as Vector;
       break;
     case Direction.Down:
-      newLoc = curLoc.set('y', curLoc.y + amount) as Vector;
+      newLoc = fp.set('y', curLoc.y + amount, curLoc) as Vector;
       break;
     case Direction.Left:
-      newLoc = curLoc.set('x', curLoc.x - amount) as Vector;
+      newLoc = fp.set('x', curLoc.x - amount, curLoc) as Vector;
       break;
     case Direction.Right:
-      newLoc = curLoc.set('x', curLoc.x + amount) as Vector;
+      newLoc = fp.set('x', curLoc.x + amount, curLoc) as Vector;
       break;
     default:
       //do nothing (keep position);
@@ -197,23 +194,6 @@ export function moveDirection(
   amount: number,
 ): Location {
   let curLoc: Vector = location.objects.get(objectId);
-  let newLoc: Vector;
-  switch (direction) {
-    case Direction.Up:
-      newLoc = curLoc.set('y', curLoc.y - amount) as Vector;
-      break;
-    case Direction.Down:
-      newLoc = curLoc.set('y', curLoc.y + amount) as Vector;
-      break;
-    case Direction.Left:
-      newLoc = curLoc.set('x', curLoc.x - amount) as Vector;
-      break;
-    case Direction.Right:
-      newLoc = curLoc.set('x', curLoc.x + amount) as Vector;
-      break;
-    default:
-      //do nothing (keep position);
-      break;
-  }
-  return moveObject(location, objectId, new Vector(newLoc));
+  let newLoc = getVectorFromDirection(location, objectId, direction, amount);
+  return moveObject(location, objectId, newLoc);
 }

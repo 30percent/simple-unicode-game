@@ -1,21 +1,22 @@
-import { Set } from 'immutable';
 import * as fp from 'lodash/fp';
 
 import { addObjectToLocation, Location, Vector } from '../location';
 import { GameObject } from './../interfaces/GameObject';
 import { Direction, getVectorFromDirection } from './../location';
 import { getObjectById } from './../state';
+import { setFind } from './../routines/utils';
 
 export function symbolLocationDraw(state: Set<GameObject>, location: Location) {
   return fp
     .map((y) => {
       return fp
         .map((x) => {
-          let objectId = location.objectIdAtPosition(
-            new Vector({ x: x, y: y }),
-          );
+          let objectId = location.objectIdAtPosition({ x: x, y: y });
           if (!fp.isNil(objectId)) {
-            let object = state.find((obj: GameObject) => obj._id == objectId);
+            let object = setFind(
+              state,
+              (obj: GameObject) => obj._id == objectId,
+            );
             if (object) {
               return object.symbol;
             } else {
@@ -49,21 +50,24 @@ export function locationMoveDirectionWithEntry(
       // TODO: (this mess needs to be fixed/cleaned)
       let newPos = objAtPos.objects.get(curLocation._id);
       if (newPos) {
-        newPos = newPos.set('x', newPos.x + 1) as Vector;
+        newPos = fp.set('x', newPos.x + 1, newPos);
       } else {
-        newPos = new Vector({ x: 0, y: 0 });
+        newPos = { x: 0, y: 0 };
       }
-      firstLoc = curLocation.deleteIn(['objects', objectId]) as Location;
+      curLocation.objects.delete(objectId);
+      firstLoc = curLocation;
       secondLoc = addObjectToLocation(objAtPos, objectId, newPos);
     } else if (!objAtPos.solid) {
-      firstLoc = curLocation.setIn(['objects', objectId], pos) as Location;
+      curLocation.objects.set(objectId, pos);
+      firstLoc = curLocation;
     } else {
       // Location occupied by non-entry point, no locations were modified, no need to do anything
     }
   } else if (!curLocation.isPositionInbounds(pos)) {
     return null;
   } else {
-    firstLoc = curLocation.setIn(['objects', objectId], pos) as Location;
+    curLocation.objects.set(objectId, pos);
+    firstLoc = curLocation;
   }
   return {
     firstLoc: firstLoc,

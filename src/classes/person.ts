@@ -1,45 +1,40 @@
 // import { Record } from "immutable";
 import { HealthStatusHolder, HealthStatus } from './interfaces/StatusEffects';
-import * as Immutable from 'immutable';
 import * as cuid from 'cuid';
 import * as fp from 'lodash/fp';
+import { assign } from 'lodash';
 import { Stringy, GameObject } from './interfaces/GameObject';
 import { HealthInt } from './interfaces/Health';
 
 export type PersonParams = {
   name: string;
   hp: number;
+  maxHp: number;
   symbol?: string;
 };
 
-export class Person
-  extends Immutable.Record({
-    hp: 0,
-    _id: 0,
-    name: '',
-    symbol: 'o',
-    solid: true,
-    healthStatuses: Immutable.Set<HealthStatus>(),
-  })
-  implements GameObject, HealthInt, HealthStatusHolder {
+export class Person implements GameObject, HealthInt, HealthStatusHolder {
   symbol: any;
   hp: number;
+  maxHp: number;
   _id: number;
   name: string;
   solid: boolean;
-  healthStatuses: Immutable.Set<HealthStatus>;
+  healthStatuses: Set<HealthStatus>;
 
   constructor(params: PersonParams) {
     let toSup = fp.assign(
       {
         _id: cuid(),
-        healthStatus: Immutable.Set<HealthStatus>(),
+        healthStatuses: new Set<HealthStatus>(),
       },
       params,
     );
-    super(toSup);
+    Object.assign(this, toSup);
   }
   asString() {
-    return `${this.name}. Health: ${this.hp}`;
+    return `${this.name}. Health: ${this.hp}. Statuses: ${Array.from(
+      this.healthStatuses.values(),
+    )}`;
   }
 }

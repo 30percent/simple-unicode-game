@@ -1,13 +1,19 @@
+import { Record } from 'immutable';
+import * as fp from 'lodash/fp';
+import { GameObject } from './GameObject';
 
-import { Record } from "immutable";
-
-export abstract class HealthInt extends Record({hp: 0}) {
-    hp: number;
+export interface HealthInt {
+  hp: number;
+  maxHp: number;
 }
 
 export function modifyHealth<T extends HealthInt>(obj: T, num: number): T {
-    return obj.set('hp', obj.hp + num) as T;
+  return fp.set('hp', num, obj);
 }
 export function isDead(obj: HealthInt): boolean {
-    return obj.hp <= 0;
+  return obj.hp <= 0;
+}
+
+export function isHealth(obj: any): obj is HealthInt {
+  return fp.hasIn('hp', obj) && fp.hasIn('maxHp', obj);
 }

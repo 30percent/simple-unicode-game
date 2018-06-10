@@ -1,15 +1,31 @@
-import { Map, List, Record, Set } from 'immutable';
-import { GameObject } from "./interfaces/GameObject";
+import { GameObject } from './interfaces/GameObject';
 import * as fp from 'lodash/fp';
-import { Location } from "./location";
+import { Location } from '../classes/location';
 export type State = Set<GameObject>;
+let aProto = Object.getPrototypeOf(
+  new Location({ name: '', roomLimit: { x: 0, y: 0 } }),
+);
 
-export function getObjectById(state: State, id: number) : GameObject {
-    return state.find((v) => v._id === id);
+function isLocation(obj: GameObject): obj is Location {
+  return aProto.isPrototypeOf(obj);
 }
 
-export function getCurrentLocation(state: State, personId: number) : Location {
-    return state.find((obj) => {
-        return obj instanceof Location && !fp.isNil(obj.objects.findKey((ign: any, id: number) => id === personId));
-    }) as Location;
+export function getObjectById(state: State, id: number): GameObject {
+  return fp.find((v) => v._id === id, Array.from(state.values()));
+}
+
+export function getCurrentLocation(state: State, personId: number): Location {
+  return fp.find((obj) => {
+    let stop = 0;
+    if (obj instanceof Location) {
+      let another = 0;
+    }
+
+    return (
+      isLocation(obj) &&
+      !fp.isNil(
+        fp.find((id) => id === personId, Array.from(obj.objects.keys())),
+      )
+    );
+  }, Array.from(state.values())) as Location;
 }

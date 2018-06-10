@@ -1,5 +1,3 @@
-import { Record, Collection } from 'immutable';
-
 export interface Stringy {
   asString(): string;
 }
