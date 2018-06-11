@@ -1,12 +1,15 @@
 import { startTicking, moveYou } from './execution';
 
-import { Direction, simpleLocationDraw, Location } from './classes/location';
+import { Direction, simpleLocationDraw, Place } from './classes/place';
 import { GameObject } from './classes/interfaces/GameObject';
 import { getCurrentLocation } from './classes/state';
 import { symbolLocationDraw } from './classes/enhancements/location-enhancements';
 import { Person } from './classes/person';
 import { setFind, setFilter } from './classes/routines/utils';
 import { init } from './initialstate';
+
+import { Key } from './classes/interfaces/keycodes';
+
 const css = require('./main.css');
 
 export default class Main {
@@ -16,7 +19,7 @@ export default class Main {
     let startState = init();
     let userId = setFind(startState, (obj: GameObject) => obj.symbol === 'J')
       ._id;
-    let startLocation: Location = getCurrentLocation(startState, userId);
+    let startLocation: Place = getCurrentLocation(startState, userId);
     startTicking(startState, startLocation, (curState: Set<GameObject>) => {
       let curLocation = getCurrentLocation(curState, userId);
       if (curLocation == null)
@@ -37,7 +40,19 @@ export default class Main {
         .join('\n');
     });
     document.addEventListener('keyup', (event) => {
-      moveYou(__directionFromKey(event));
+      switch (event.keyCode) {
+        case Key.RightArrow:
+        case Key.LeftArrow:
+        case Key.UpArrow:
+        case Key.DownArrow:
+          moveYou(__directionFromKey(event));
+          break;
+        case Key.T:
+          //chat
+          break;
+        default:
+          break;
+      }
     });
   }
 }

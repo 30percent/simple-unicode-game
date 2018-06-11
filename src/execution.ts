@@ -11,7 +11,7 @@ import {
   HealthStatus,
   isHealthStatusHolder,
 } from './classes/interfaces/StatusEffects';
-import { Direction, Location, Vector, vectEqual } from './classes/location';
+import { Direction, Place, Vector, vectEqual } from './classes/place';
 import { Person } from './classes/person';
 import { createPaceFoo } from './classes/routines/pace';
 import { tickFoo } from './classes/routines/tick';
@@ -25,7 +25,7 @@ function __getId(object: GameObject | number): number {
 // Replace with Generator at earliest convenience
 export function startTicking(
   state: Set<GameObject>,
-  curLocation: Location,
+  curLocation: Place,
   toCall: (state: Set<GameObject>) => any,
 ) {
   let inState = state;
@@ -65,10 +65,11 @@ function tick(oldState: Set<GameObject>, locationId: number): Set<GameObject> {
         }
       }
     }
-    if (object instanceof Location) {
+    if (object instanceof Place) {
       if (fp.isEqual(object._id, locationId)) {
-        fp.flow(fp.find((obj: GameObject) => obj.symbol === 'M'), (obj) =>
-          paceRight(object, obj._id),
+        fp.flow(
+          fp.find((obj: GameObject) => obj.symbol === 'M'),
+          (obj) => paceRight(object, obj._id),
         )(Array.from(newState.values()));
       }
     }
@@ -77,8 +78,9 @@ function tick(oldState: Set<GameObject>, locationId: number): Set<GameObject> {
       newState.add(newO);
     }
   });
-  newState = fp.flow(fp.find((obj: GameObject) => obj.symbol === 'J'), (obj) =>
-    moveUser(newState, obj._id),
+  newState = fp.flow(
+    fp.find((obj: GameObject) => obj.symbol === 'J'),
+    (obj) => moveUser(newState, obj._id),
   )(Array.from(newState.values()));
   return newState;
 }
@@ -94,7 +96,7 @@ function moveUser(oldState: Set<GameObject>, userId: number) {
     let curLocation = fp.find(
       (obj: GameObject) => obj._id === locationId,
       Array.from(newState.values()),
-    ) as Location;
+    ) as Place;
     let locations = locationMoveDirectionWithEntry(
       newState,
       curLocation,

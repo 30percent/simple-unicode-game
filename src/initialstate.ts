@@ -1,6 +1,6 @@
 import { GameObject } from './classes/interfaces/GameObject';
 import { Person } from './classes/person';
-import { Location } from './classes/Location';
+import { Place } from './classes/place';
 import {
   addHealthStatus,
   HealthStatus,
@@ -11,7 +11,7 @@ import { isHealth } from './classes/interfaces/Health';
 export function init(): Set<GameObject> {
   let marg = new Person({ name: 'Margaret', hp: 10, maxHp: 10 });
   let mary = new Person({ name: 'Mary', hp: 10, maxHp: 10, symbol: 'M' });
-  let childRoom = new Location({
+  let childRoom = new Place({
     name: 'Bedroom',
     roomLimit: { x: 4, y: 4 },
     symbol: '\u01ec',
@@ -20,7 +20,7 @@ export function init(): Set<GameObject> {
     new Person({ name: 'Jack', hp: 10, maxHp: 10, symbol: 'J' }),
     HealthStatus.Poison,
   );
-  let home = new Location({
+  let home = new Place({
     name: 'Home',
     roomLimit: { x: 10, y: 10 },
   });

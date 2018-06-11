@@ -31,7 +31,7 @@ type VectorMut = {
   y: number;
 };
 
-export class Location implements GameObject {
+export class Place implements GameObject {
   symbol: string = '\u0298';
   _id: number;
   name: string;
@@ -61,7 +61,7 @@ export class Location implements GameObject {
 
   // Support difference sizes
   // Check conflicts
-  addObject(pos: Vector, objectId: number): Location {
+  addObject(pos: Vector, objectId: number): Place {
     if (this.isPositionOccupied(pos) || !this.isPositionInbounds(pos)) {
       console.error(
         `Position: ${JSON.stringify(
@@ -110,7 +110,7 @@ export class Location implements GameObject {
 }
 
 export function addObjectToLocation(
-  location: Location,
+  location: Place,
   objectId: number,
   pos: Vector,
 ) {
@@ -123,10 +123,10 @@ export function addObjectToLocation(
 
 // TODO: Add enter room logic
 export function moveObject(
-  location: Location,
+  location: Place,
   objectId: number,
   pos: Vector,
-): Location {
+): Place {
   if (!location.objects.has(objectId)) {
     console.error(`${objectId} was not found in ${location.name}.`);
     return location;
@@ -147,7 +147,7 @@ export function moveObject(
   return location;
 }
 
-export function simpleLocationDraw(location: Location) {
+export function simpleLocationDraw(location: Place) {
   return fp
     .map((y) => {
       return fp
@@ -160,7 +160,7 @@ export function simpleLocationDraw(location: Location) {
 }
 
 export function getVectorFromDirection(
-  location: Location,
+  location: Place,
   objectId: number,
   direction: Direction,
   amount: number,
@@ -188,11 +188,11 @@ export function getVectorFromDirection(
 }
 
 export function moveDirection(
-  location: Location,
+  location: Place,
   objectId: number,
   direction: Direction,
   amount: number,
-): Location {
+): Place {
   let curLoc: Vector = location.objects.get(objectId);
   let newLoc = getVectorFromDirection(location, objectId, direction, amount);
   return moveObject(location, objectId, newLoc);

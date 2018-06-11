@@ -1,4 +1,4 @@
-import { Direction, moveDirection, Location } from './../location';
+import { Direction, moveDirection, Place } from './../place';
 import { Stringy, GameObject } from './../interfaces/GameObject';
 import { isEqual } from 'lodash/fp';
 import { cloneDeep } from 'lodash';
@@ -17,9 +17,9 @@ function __swapDirection(direction: Direction): Direction {
 export function createPaceFoo(
   paceCount: number,
   direction: Direction,
-): (location: Location, id: number) => Location {
+): (location: Place, id: number) => Place {
   let paceIter = 0;
-  return function(location: Location, id: number) {
+  return function(location: Place, id: number) {
     if (paceIter >= paceCount) {
       direction = __swapDirection(direction);
       paceIter = 0;

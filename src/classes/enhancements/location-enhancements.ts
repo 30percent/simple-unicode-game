@@ -1,12 +1,17 @@
 import * as fp from 'lodash/fp';
 
-import { addObjectToLocation, Location, Vector } from '../location';
 import { GameObject } from './../interfaces/GameObject';
-import { Direction, getVectorFromDirection } from './../location';
+import {
+  addObjectToLocation,
+  Place,
+  Vector,
+  Direction,
+  getVectorFromDirection,
+} from './../place';
 import { getObjectById } from './../state';
 import { setFind } from './../routines/utils';
 
-export function symbolLocationDraw(state: Set<GameObject>, location: Location) {
+export function symbolLocationDraw(state: Set<GameObject>, location: Place) {
   return fp
     .map((y) => {
       return fp
@@ -33,18 +38,18 @@ export function symbolLocationDraw(state: Set<GameObject>, location: Location) {
 
 export function locationMoveDirectionWithEntry(
   state: Set<GameObject>,
-  curLocation: Location,
+  curLocation: Place,
   objectId: number,
   direction: Direction,
   amount: number,
-): { firstLoc: Location; secondLoc: Location } {
+): { firstLoc: Place; secondLoc: Place } {
   let pos = getVectorFromDirection(curLocation, objectId, direction, amount);
   let objIdAtPos = curLocation.objectIdAtPosition(pos);
-  let firstLoc: Location;
-  let secondLoc: Location;
+  let firstLoc: Place;
+  let secondLoc: Place;
   if (!fp.isNil(objIdAtPos)) {
     let objAtPos = getObjectById(state, objIdAtPos);
-    if (objAtPos instanceof Location) {
+    if (objAtPos instanceof Place) {
       // Enter room (move object out of room into new room)
       // Get new placement
       // TODO: (this mess needs to be fixed/cleaned)
@@ -61,7 +66,7 @@ export function locationMoveDirectionWithEntry(
       curLocation.objects.set(objectId, pos);
       firstLoc = curLocation;
     } else {
-      // Location occupied by non-entry point, no locations were modified, no need to do anything
+      // Place occupied by non-entry point, no locations were modified, no need to do anything
     }
   } else if (!curLocation.isPositionInbounds(pos)) {
     return null;
