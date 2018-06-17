@@ -68,7 +68,7 @@ function __directionFromKey(event: KeyboardEvent): Direction {
     case 40:
       return Direction.Down;
     default:
-      return null;
+      return Direction.Nowhere;
   }
 }
 

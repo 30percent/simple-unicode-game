@@ -8,7 +8,9 @@
     "experimentalDecorators": true,
     "lib": ["es2015", "dom"],
     "noImplicitAny": true,
-    "suppressImplicitAnyIndexErrors": true
+    "strictNullChecks": false,
+    "suppressImplicitAnyIndexErrors": true,
+    "defaultSeverity": "warning"
   },
   "exclude": ["node_modules", "dist"]
 }

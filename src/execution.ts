@@ -1,6 +1,7 @@
 import * as Promise from 'bluebird';
 import { HealthInt, isHealth } from './classes/interfaces/Health';
 import * as fp from 'lodash/fp';
+import { get as _Get, rearg, curry } from 'lodash';
 
 import { locationMoveDirectionWithEntry } from './classes/enhancements/location-enhancements';
 import { GameObject } from './classes/interfaces/GameObject';
@@ -33,7 +34,7 @@ export function startTicking(
     return Promise.method((input) => {
       inState = tick(inState, curLocation._id);
       return inState;
-    })(null).then(toCall);
+    })({}).then(toCall);
   });
 }
 
@@ -47,10 +48,10 @@ function tick(oldState: Set<GameObject>, locationId: number): Set<GameObject> {
       newO = execHealthStatus(object);
     }
     if (object instanceof Person) {
-      //currently handling furniture by person, but this could change
+      // currently handling furniture by person, but this could change
       let loc = getCurrentLocation(newState, object._id);
       if (loc) {
-        let pointInLoc = loc.objects.get(object._id);
+        let pointInLoc = loc.objects.get(object._id) || { x: -1, y: -1 };
         let furnId = fp.flow(
           fp.find(
             (entry) =>
@@ -69,7 +70,7 @@ function tick(oldState: Set<GameObject>, locationId: number): Set<GameObject> {
       if (fp.isEqual(object._id, locationId)) {
         fp.flow(
           fp.find((obj: GameObject) => obj.symbol === 'M'),
-          (obj) => paceRight(object, obj._id),
+          (obj) => paceRight(object, _Get(obj, '_id', -1)), // fix arg order...
         )(Array.from(newState.values()));
       }
     }
@@ -80,19 +81,23 @@ function tick(oldState: Set<GameObject>, locationId: number): Set<GameObject> {
   });
   newState = fp.flow(
     fp.find((obj: GameObject) => obj.symbol === 'J'),
-    (obj) => moveUser(newState, obj._id),
+    (obj) => moveUser(newState, fp.get('_id', obj)),
   )(Array.from(newState.values()));
   return newState;
 }
 
-let toMove: Direction = null;
+let toMove: Direction = Direction.Nowhere;
 export function moveYou(direction: Direction) {
   if (fp.isNumber(direction)) toMove = direction;
 }
-function moveUser(oldState: Set<GameObject>, userId: number) {
+function moveUser(
+  oldState: Set<GameObject>,
+  userId: number | undefined,
+): Set<GameObject> {
+  if (userId == null) return oldState;
   let newState = oldState;
   let locationId = getCurrentLocation(newState, userId)._id;
-  if (toMove !== null) {
+  if (toMove !== Direction.Nowhere) {
     let curLocation = fp.find(
       (obj: GameObject) => obj._id === locationId,
       Array.from(newState.values()),
@@ -104,7 +109,7 @@ function moveUser(oldState: Set<GameObject>, userId: number) {
       toMove,
       1,
     );
-    toMove = null;
+    toMove = Direction.Nowhere;
   }
   return newState;
 }

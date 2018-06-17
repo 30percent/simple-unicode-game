@@ -14,6 +14,7 @@ export enum Direction {
   Down,
   Left,
   Right,
+  Nowhere,
 }
 
 export interface Vector {
@@ -165,7 +166,8 @@ export function getVectorFromDirection(
   direction: Direction,
   amount: number,
 ) {
-  let curLoc: Vector = location.objects.get(objectId);
+  let curLoc: Vector | undefined = location.objects.get(objectId);
+  if (fp.isNil(curLoc)) return undefined;
   let newLoc: Vector = fp.clone(curLoc);
   switch (direction) {
     case Direction.Up:
@@ -193,7 +195,7 @@ export function moveDirection(
   direction: Direction,
   amount: number,
 ): Place {
-  let curLoc: Vector = location.objects.get(objectId);
   let newLoc = getVectorFromDirection(location, objectId, direction, amount);
+  if (fp.isNil(newLoc)) return location;
   return moveObject(location, objectId, newLoc);
 }

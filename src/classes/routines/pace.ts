@@ -12,6 +12,8 @@ function __swapDirection(direction: Direction): Direction {
       return Direction.Right;
     case Direction.Right:
       return Direction.Left;
+    default:
+      return Direction.Nowhere;
   }
 }
 export function createPaceFoo(
