@@ -5,7 +5,7 @@ import { GameObject } from './classes/interfaces/GameObject';
 import { getCurrentLocation } from './classes/state';
 import { symbolLocationDraw } from './classes/enhancements/location-enhancements';
 import { Person } from './classes/person';
-import { createDummies, LinkStatics, Link } from './testbed/depgraph';
+import { createDummies, LinkStatics, Link, createGraphView, dummyGraph } from './testbed/depgraph';
 
 const css = require('./main.css');
 
@@ -14,22 +14,23 @@ export default class Main {
     console.log('Typescript Webpack starter launched');
     // this.startGameLoop();
     let dummies = createDummies();
-    LinkStatics.addLink({
-      from: dummies[0],
-      to: dummies[1],
-      asynchronous: true,
-    });
-    LinkStatics.addLink({
-      to: dummies[3],
-      from: dummies[1],
-      asynchronous: false,
-    });
-    LinkStatics.addLink({
-      from: dummies[1],
-      to: dummies[0],
-      asynchronous: true,
-    });
-    document.addEventListener('keyup', () => {
+    // LinkStatics.addLink({
+    //   from: dummies[0],
+    //   to: dummies[1],
+    //   asynchronous: true,
+    // });
+    // LinkStatics.addLink({
+    //   to: dummies[3],
+    //   from: dummies[1],
+    //   asynchronous: false,
+    // });
+    // LinkStatics.addLink({
+    //   from: dummies[1],
+    //   to: dummies[0],
+    //   asynchronous: true,
+    // });
+    dummyGraph(dummies)
+    // document.addEventListener('keyup', function () {
       let no = LinkStatics.isConnectedAsync(dummies[0], dummies[1]);
       let yes = LinkStatics.isConnectedAsync(dummies[3], dummies[0]);
 
@@ -40,7 +41,20 @@ export default class Main {
         What about ${dummies[1].getName()}: ${LinkStatics.canIWork(dummies[1])}
       `;
       document.getElementById('first-location').innerHTML = `${docStr}`;
-    });
+      let hatcheTeeEmEll = dummies.map((dum) => {
+        return `<div>${createGraphView(dum)}</div>`
+      })
+      document.getElementById('current-tick').innerHTML = hatcheTeeEmEll.join('<hr/>');
+    // });
+    let windowAny: any = window;
+    windowAny.itermap = function itermap<S, T>(iter: Iterator<S>, cb: (s: S) => T): T[] {
+      let iterNext = iter.next();
+      let ret: T[] = [];
+      while (!iterNext.done) {
+        ret.push(cb(iterNext.value));
+      }
+      return ret;
+    }
   }
 
   startGameLoop = () => {

@@ -1,7 +1,6 @@
 export class RefData {
   static FIRST_NAMES = [
     'Sophie',
-    'Isabelle',
     'Emily',
     'Olivia',
     'Lily',
@@ -9,7 +8,6 @@ export class RefData {
     'Isabella',
     'Amelia',
     'Jessica',
-    'Sophia',
     'Ava',
     'Charlotte',
     'Mia',
