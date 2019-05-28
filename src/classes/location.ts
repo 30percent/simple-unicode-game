@@ -1,7 +1,7 @@
-import { Record, Map, is } from "immutable";
-import * as cuid from "cuid";
-import * as fp from "lodash/fp";
-import { Stringy, GameObject } from "./interfaces/GameObject";
+import { Record, Map, is } from 'immutable';
+import * as cuid from 'cuid';
+import * as fp from 'lodash/fp';
+import { Stringy, GameObject } from './interfaces/GameObject';
 
 export type LocationParams = {
   name: string;
@@ -13,7 +13,7 @@ export enum Direction {
   Up,
   Down,
   Left,
-  Right
+  Right,
 }
 
 export class Vector extends Record({ x: 0, y: 0 }) {
@@ -29,10 +29,10 @@ type VectorMut = {
 export class Location
   extends Record({
     _id: 0,
-    name: "__unnamed__",
+    name: '__unnamed__',
     objects: Map<number, Vector>(),
     roomLimit: { x: 0, y: 0 } as Vector,
-    symbol: "\u06E9"
+    symbol: '\u06E9',
   })
   implements GameObject {
   symbol: string;
@@ -45,9 +45,9 @@ export class Location
   constructor(params: LocationParams) {
     let toSup = fp.assign(
       {
-        _id: cuid()
+        _id: cuid(),
       },
-      params
+      params,
     );
     super(toSup);
   }
@@ -55,7 +55,7 @@ export class Location
   asString() {
     let objects = this.objects.valueSeq().toJS();
     let result = `Name: ${this.name}. Objects: ${objects.map((v: any) =>
-      JSON.stringify(v)
+      JSON.stringify(v),
     )}`;
     return result;
   }
@@ -66,12 +66,12 @@ export class Location
     if (this.isPositionOccupied(pos) || !this.isPositionInbounds(pos)) {
       console.error(
         `Position: ${JSON.stringify(
-          pos
-        )} is occupied. ${objectId} was not added`
+          pos,
+        )} is occupied. ${objectId} was not added`,
       );
       return this;
     }
-    return this.set("objects", this.objects.set(objectId, pos)) as this;
+    return this.set('objects', this.objects.set(objectId, pos)) as this;
   }
 
   hasObject(object: GameObject): boolean {
@@ -80,16 +80,20 @@ export class Location
 
   isPositionOccupied(pos: Vector): boolean {
     // Immutable adds an owner id which breaks basic fp.isEqual support.
-    var toE = fp.pick(['x', 'y']);
+    const toE = fp.pick(['x', 'y']);
     // cannot use "Map.includes" as there is no apparent way to enhance Immutable.is
-    return !fp.isNil(this.objects.find(p => fp.isEqual(toE(pos), toE(p))));
+    return !fp.isNil(this.objects.find((p) => fp.isEqual(toE(pos), toE(p))));
   }
 
   objectIdAtPosition(pos: Vector): number {
     // Immutable adds an owner id which breaks basic fp.isEqual support.
-    var toE = fp.pick(['x', 'y']);
+    const toE = fp.pick(['x', 'y']);
     // cannot use "Map.includes" as there is no apparent way to enhance Immutable.is
-    return this.objects.findKey(p => fp.isEqual(toE(pos), toE(p)));
+    return this.objects.findKey((p) => fp.isEqual(toE(pos), toE(p)));
+  }
+
+  positionObjectAt(id: number): Vector | null {
+    return this.objects.get(id);
   }
 
   isPositionInbounds(pos: Vector): boolean {
@@ -105,76 +109,80 @@ export class Location
 export function addObjectToLocation(
   location: Location,
   objectId: number,
-  pos: Vector
-){
+  pos: Vector,
+) {
   if (location.isPositionOccupied(pos) || !location.isPositionInbounds(pos)) {
     return location;
   }
-  return location.set("objects", location.objects.set(objectId, pos)) as Location;}
+  return location.set(
+    'objects',
+    location.objects.set(objectId, pos),
+  ) as Location;
+}
 
 // TODO: Add enter room logic
 export function moveObject(
   location: Location,
   objectId: number,
-  pos: Vector
+  pos: Vector,
 ): Location {
   if (!location.objects.has(objectId)) {
     console.error(`${objectId} was not found in ${location.name}.`);
     return location;
   } else if (location.isPositionOccupied(pos)) {
     console.error(
-      `${objectId} could not be moved. Position in ${location.name} occupied.`
+      `${objectId} could not be moved. Position in ${location.name} occupied.`,
     );
     return location;
   } else if (!location.isPositionInbounds(pos)) {
     console.error(
       `${objectId} could not be moved. Position ${pos} in ${
         location.name
-      } out of bounds.`
+      } out of bounds.`,
     );
     return location;
   }
-  return location.setIn(["objects", objectId], pos) as Location;
+  return location.setIn(['objects', objectId], pos) as Location;
 }
 
 export function simpleLocationDraw(location: Location) {
   return fp
-    .map(y => {
+    .map((y) => {
       return fp
-        .map(x => {
+        .map((x) => {
           return location.isPositionOccupied(new Vector({ x: x, y: y }))
-            ? "o"
-            : "_";
+            ? 'o'
+            : '_';
         }, fp.range(0, location.roomLimit.x))
-        .join(" | ");
+        .join(' | ');
     }, fp.range(0, location.roomLimit.y))
-    .join("\n");
+    .join('\n');
 }
 
 export function getVectorFromDirection(
   location: Location,
   objectId: number,
   direction: Direction,
-  amount: number
+  amount: number,
 ) {
   let curLoc: Vector = location.objects.get(objectId);
   let newLoc: Vector = curLoc;
   switch (direction) {
     case Direction.Up:
-      newLoc = curLoc.set("y", curLoc.y - amount) as Vector;
+      newLoc = curLoc.set('y', curLoc.y - amount) as Vector;
       break;
     case Direction.Down:
-      newLoc = curLoc.set("y", curLoc.y + amount) as Vector;
+      newLoc = curLoc.set('y', curLoc.y + amount) as Vector;
       break;
     case Direction.Left:
-      newLoc = curLoc.set("x", curLoc.x - amount) as Vector;
+      newLoc = curLoc.set('x', curLoc.x - amount) as Vector;
       break;
     case Direction.Right:
-      newLoc = curLoc.set("x", curLoc.x + amount) as Vector;
+      newLoc = curLoc.set('x', curLoc.x + amount) as Vector;
       break;
     default:
-      //do nothing (keep position);
-      break; 
+      // do nothing (keep position);
+      break;
   }
   return newLoc;
 }
@@ -183,26 +191,26 @@ export function moveDirection(
   location: Location,
   objectId: number,
   direction: Direction,
-  amount: number
+  amount: number,
 ): Location {
   let curLoc: Vector = location.objects.get(objectId);
   let newLoc: Vector;
   switch (direction) {
     case Direction.Up:
-      newLoc = curLoc.set("y", curLoc.y - amount) as Vector;
+      newLoc = curLoc.set('y', curLoc.y - amount) as Vector;
       break;
     case Direction.Down:
-      newLoc = curLoc.set("y", curLoc.y + amount) as Vector;
+      newLoc = curLoc.set('y', curLoc.y + amount) as Vector;
       break;
     case Direction.Left:
-      newLoc = curLoc.set("x", curLoc.x - amount) as Vector;
+      newLoc = curLoc.set('x', curLoc.x - amount) as Vector;
       break;
     case Direction.Right:
-      newLoc = curLoc.set("x", curLoc.x + amount) as Vector;
+      newLoc = curLoc.set('x', curLoc.x + amount) as Vector;
       break;
     default:
-      //do nothing (keep position);
-      break; 
+      // do nothing (keep position);
+      break;
   }
   return moveObject(location, objectId, new Vector(newLoc));
 }
