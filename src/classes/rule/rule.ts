@@ -1,6 +1,9 @@
+import { GameObject } from "../interfaces/GameObject";
+
 // Handler of toggles and knobs
 // For example:
-//   * pacing should only occur when *not* under attack
-//   * when under attack, @ low health, activate flee enemy
 
-export class Rule {}
+export class Rule<T extends GameObject> {
+  conditions: (() => boolean)[];
+  action: (t: T) => T;
+}

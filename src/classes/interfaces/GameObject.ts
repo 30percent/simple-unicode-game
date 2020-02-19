@@ -4,7 +4,7 @@ export interface Stringy {
     asString(): string;
 }
 
-export interface GameObject extends Stringy{
+export interface GameObject extends Stringy {
     _id: number;
     symbol: string;
 }
