@@ -1,4 +1,5 @@
 import { has, concat } from 'lodash';
+import { Stringy, GameObject } from "./GameObject";
 import { HealthInt } from './Health';
 import * as fp from 'lodash/fp';
 
@@ -6,9 +7,14 @@ export enum HealthStatus {
   Poison
 }
 
-export abstract class HealthStatusHolder implements HealthInt {
+export interface HealthStatusHolder extends HealthInt, GameObject {
   healthStatuses: Set<HealthStatus>;
   hp: number;
+  
+  setHealth<T extends HealthStatusHolder>(hp: number): T;
+
+  removeStatus<T extends HealthStatusHolder>(status: HealthStatus): T;
+  
 }
 
 export function isHealthStatusHolder(obj: any): obj is HealthStatusHolder {
@@ -30,7 +36,11 @@ export function execHealthStatus<T extends HealthStatusHolder>(obj: T): T {
   obj.healthStatuses.forEach(status => {
     switch(status) {
       case HealthStatus.Poison:
-        (obj.hp <= 1) ? obj.healthStatuses.delete(HealthStatus.Poison) : fp.set("hp", obj.hp - 1, obj);
+       if (obj.hp <= 1) {
+         obj = obj.removeStatus(HealthStatus.Poison) 
+       } else {
+         obj = obj.setHealth(obj.hp - 1);
+       }
         break;
       default:
         break;

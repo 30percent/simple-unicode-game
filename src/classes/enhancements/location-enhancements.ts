@@ -31,7 +31,22 @@ export function symbolLocationDraw(
     }, fp.range(0, location.roomLimit.y))
     .join("\n");
 }
-
+function openNeighbor(location: Location, vector: Vector): Vector {
+  let matR: Vector[] = [];
+  let potentials: Vector[] = [
+    new Vector({ x: vector.x - 1, y: vector.y }),
+    new Vector({ x: vector.x , y: vector.y - 1}),
+    new Vector({ x: vector.x + 1, y: vector.y }),
+    new Vector({ x: vector.x , y: vector.y + 1 })
+  ];
+  let available = fp.filter(
+    fp.isObject,
+    fp.map((path) => {
+      return location.validPos(path) ? path : null
+    }, potentials)
+  ) as Vector[];
+  return fp.get('0', available);
+}
 export function locationMoveDirectionWithEntry(
   state: Map<string, GameObject>,
   curLocation: Location,
@@ -49,7 +64,7 @@ export function locationMoveDirectionWithEntry(
       // TODO: (this mess needs to be fixed/cleaned)
       let newPos = objAtPos.objects.get(curLocation._id);
       if(newPos) {
-        newPos = fp.set('x', newPos.x + 1)(newPos);
+        newPos = openNeighbor(objAtPos, newPos);
       } else {
         newPos = new Vector({x: 0, y: 0})
       }
