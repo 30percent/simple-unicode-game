@@ -10,6 +10,12 @@
   font-family: "Free-Mono";
   src: url("./assets/FreeMono.ttf") format("truetype");
 }
+
+@font-face {
+  font-family: "Unifont";
+  src: url("./assets/unifont-12.1.04.ttf") format("truetype");
+}
+
 pre#first-location {
-  font-family: "Free-Mono";
+  font-family: "Unifont";
 }

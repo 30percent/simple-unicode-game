@@ -1,4 +1,5 @@
 import * as fp from 'lodash/fp';
+import { Blockage } from "./classes/block";
 
 import { locationMoveDirectionWithEntry } from './classes/enhancements/location-enhancements';
 import { GameObject } from './classes/interfaces/GameObject';
@@ -16,44 +17,10 @@ import { tickFoo } from './classes/routines/tick';
 import { getCurrentLocation, locationContaining, getObjectByPred } from './classes/state';
 import { isNil, find, noop } from 'lodash';
 import { Direction } from './classes/structs/Direction';
+import { getVectorDirection } from './classes/enhancements/vector-enhancements';
+import { healthProgress, pathSpeed } from './classes/routines/interval';
 
-function __getId(object: GameObject | string): string {
-  return fp.isObject(object) ? (object as GameObject)._id : (object as string);
-}
-
-let paceRight = createPaceFoo(4, Direction.Right);
 let margWander: (loc: Location) => Location;
-export function init(): Map<string, GameObject> {
-  let marg = new Person({ name: 'Margaret', hp: 10, symbol: 'G' });
-  let mary = new Person({ name: 'Mary', hp: 10, symbol: 'M' });
-  let childRoom = new Location({
-    name: 'Bedroom',
-    roomLimit: new Vector({ x: 4, y: 4 }),
-    symbol: '\u0298',
-  });
-  let jack = addHealthStatus(
-    modifyHealth(new Person({ name: 'Jack', hp: 10, symbol: 'J' }), -2),
-    HealthStatus.Poison,
-  );
-  let home = new Location({
-    name: 'Home',
-    roomLimit: new Vector({ x: 10, y: 10 }),
-  });
-  // add to locations
-  home = home
-    .addObject(new Vector({ x: 0, y: 3 }), mary._id)
-    .addObject(new Vector({ x: 0, y: 4 }), jack._id)
-    .addObject(new Vector({ x: 3, y: 2 }), marg._id)
-    .addObject(new Vector({ x: 5, y: 7 }), childRoom._id);
-
-  childRoom = childRoom.addObject(new Vector({ x: 0, y: 2 }), home._id);
-  // margWander = createClampedWander(home, 2, marg._id);
-  const retMap = new Map<string, GameObject>();
-  [home, jack, mary, marg, childRoom].map((v) => {
-    retMap.set(v._id, v);
-  })
-  return retMap;
-}
 
 // Replace with Generator at earliest convenience
 export function startTicking(
@@ -73,8 +40,8 @@ export function sTick2(
   curLocation: Location,
   toCall: (state: Map<string, GameObject>) => any
 ) {
-  let count = 100;
-  let time = 1000;
+  let count = 0;
+  let time = 100;
   let iter = 0;
   let lastState = state;
   let lastLoc = curLocation;
@@ -91,18 +58,17 @@ export function sTick2(
   interval = setInterval(_next, time);
 }
 
-
 function tick(oldState: Map<string, GameObject>, locationId: string): Map<string, GameObject> {
   let newState = fp.clone(oldState);
   oldState.forEach((object: GameObject) => {
     let newO = object;
     if (isHealthStatusHolder(object)) {
-      newO = execHealthStatus(object);
+      newO = healthProgress(object);
     }
     if (object instanceof Location && fp.isEqual(object._id, locationId)) {
-      let mary = fp.find((obj) => obj.symbol === 'M', Array.from(newState.values()));
-      let maryLoc = getCurrentLocation(oldState, mary._id);
-      newO = paceRight(maryLoc, mary._id); // just an example...
+      newO = pathSpeed(object, oldState.get('delilah') as Person, getVectorDirection(object.objects.get('margaret'), Direction.Up));
+      //newO = paceRight(maryLoc, mary._id); // just an example...
+      // newO = 
     }
     if (object instanceof Location && !isNil(margWander)) {
       // newO = margWander(object);

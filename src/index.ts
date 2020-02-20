@@ -1,11 +1,13 @@
 import { Direction } from "./classes/structs/Direction";
-import { init, startTicking, sTick2, moveYou } from './execution';
-import { Location } from './classes/location';
+import { startTicking, sTick2, moveYou } from './execution';
+import { Location, Vector } from './classes/location';
 import * as fp from 'lodash/fp';
 import { GameObject } from './classes/interfaces/GameObject';
 import { getCurrentLocation, getObjectByPred } from './classes/state';
 import { symbolLocationDraw } from './classes/enhancements/location-enhancements';
 import { Person } from './classes/person';
+import { getPath } from "./classes/routines/path";
+import { init } from "./initialState";
 
 const css = require('./main.css');
 
@@ -15,6 +17,8 @@ export default class Main {
     let startState = init();
     let userId = getObjectByPred(startState, (obj) => obj.symbol === 'J')._id;
     let startLocation: Location = getCurrentLocation(startState, userId);
+    let path = getPath(startLocation, startState.get(userId) as Person, new Vector({x: 0, y: 1}));
+    console.log(`Path: ${path}`);
     sTick2(startState, startLocation, (curState: Map<string, GameObject>) => {
       let curLocation = getCurrentLocation(curState, userId);
       if (curLocation == null)

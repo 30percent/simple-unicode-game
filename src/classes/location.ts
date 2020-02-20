@@ -1,4 +1,4 @@
-import { assign, map, find, findKey, cloneDeep } from 'lodash';
+import { assign, map, find, findKey, cloneDeep, range } from 'lodash';
 import { GameObject } from "./interfaces/GameObject";
 import * as cuid from 'cuid';
 import * as fp from 'lodash/fp';
@@ -16,6 +16,9 @@ export class Vector {
   y: number;
   constructor(params: VectorMut) {
     assign(this, params);
+  }
+  toString() {
+    return `[${this.x}, ${this.y}]`
   }
 }
 
@@ -139,6 +142,16 @@ export function simpleLocationDraw(location: Location) {
         .join(' | ');
     }, fp.range(0, location.roomLimit.y))
     .join('\n');
+}
+
+export function getLocationMatrix(location: Location): number[][] {
+  let occupied: Vector[] = Array.from(location.objects.values());
+  let marked: number[][] = map(range(0, location.roomLimit.x), (x) => {
+    return map(range(0, location.roomLimit.y), (y) => 
+      find(occupied, (o) => o.x === x && o.y === y) ? 10000 : 1
+    )
+  });
+  return marked;
 }
 
 export function getVectorFromDirection(

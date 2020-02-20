@@ -9,6 +9,7 @@ export type PersonParams = {
   name: string;
   hp: number;
   symbol?: string;
+  _id?: string;
 };
 
 export class Person
@@ -23,7 +24,7 @@ export class Person
     assign<Person, Partial<Person>>(
       this,
       {
-        _id: cuid(),
+        _id: (params._id || cuid()),
         healthStatuses: new Set<HealthStatus>(),
         ...params
       }
@@ -31,5 +32,15 @@ export class Person
   }
   asString() {
     return `${this.name}. Health: ${this.hp}`;
+  }
+  
+  setHealth<T extends HealthStatusHolder>(hp: number): T {
+    return fp.set<T>('hp', hp, this);
+  }
+
+  removeStatus<T extends HealthStatusHolder>(status: HealthStatus): T {
+    let o = fp.clone<T>(this as unknown as T);
+    o.healthStatuses.delete(status);
+    return o;
   }
 }
