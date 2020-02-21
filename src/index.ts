@@ -7,37 +7,40 @@ import { getCurrentLocation, getObjectByPred } from './classes/state';
 import { symbolLocationDraw } from './classes/enhancements/location-enhancements';
 import { Person } from './classes/person';
 import { getPath } from "./classes/routines/path";
-import { init } from "./initialState";
+import { parsePlaces, parsePeople } from "./parseConfig";
 
 const css = require('./main.css');
 
 export default class Main {
   constructor() {
     console.log('Typescript Webpack starter launched');
-    let startState = init();
-    let userId = getObjectByPred(startState, (obj) => obj.symbol === 'J')._id;
-    let startLocation: Location = getCurrentLocation(startState, userId);
-    let path = getPath(startLocation, startState.get(userId) as Person, new Vector({x: 0, y: 1}));
-    console.log(`Path: ${path}`);
-    sTick2(startState, startLocation, (curState: Map<string, GameObject>) => {
-      let curLocation = getCurrentLocation(curState, userId);
-      if (curLocation == null)
-        document.getElementById('first-location').innerHTML = '';
-      else {
-        document.getElementById(
-          'first-location',
-        ).innerHTML = symbolLocationDraw(curState, curLocation);
-      }
-      document.getElementById('person-info').innerHTML = fp
-        .filter((obj) => {
-          return obj instanceof Person;
-        }, Array.from(curState.values()))
-        .map((person) => person.asString())
-        .sort()
-        .join('\n');
-    });
-    document.addEventListener('keyup', (event) => {
-      moveYou(__directionFromKey(event));
+    parsePeople(new Map<string, GameObject>()).then(
+      parsePlaces
+    ).then((startState) => {
+      let userId = getObjectByPred(startState, (obj) => obj.symbol === 'J')._id;
+      let startLocation: Location = getCurrentLocation(startState, userId);
+      let path = getPath(startLocation, startState.get(userId) as Person, new Vector({x: 0, y: 1}));
+      console.log(`Path: ${path}`);
+      sTick2(startState, startLocation, (curState: Map<string, GameObject>) => {
+        let curLocation = getCurrentLocation(curState, userId);
+        if (curLocation == null)
+          document.getElementById('first-location').innerHTML = '';
+        else {
+          document.getElementById(
+            'first-location',
+          ).innerHTML = symbolLocationDraw(curState, curLocation);
+        }
+        document.getElementById('person-info').innerHTML = fp
+          .filter((obj) => {
+            return obj instanceof Person;
+          }, Array.from(curState.values()))
+          .map((person) => person.asString())
+          .sort()
+          .join('\n');
+      });
+      document.addEventListener('keyup', (event) => {
+        moveYou(__directionFromKey(event));
+      });
     });
   }
 }

@@ -26,22 +26,25 @@ export type LocationParams = {
   name: string;
   roomLimit: Vector;
   symbol?: string;
+  _id?: string;
 };
 
 export class Location implements GameObject {
-  symbol: string;
+  symbol: string = '\u06E9';
   _id: string;
   name: string;
   // This seems counterintuitive, but we're only going to ever be modifying the Vector.
   objects: Map<string, Vector>;
+  walls: Vector[];
   roomLimit: Vector;
 
   constructor(params: LocationParams) {
     assign<Location, Partial<Location>>(
       this,
       {
-        _id: cuid(),
+        _id: (params._id) ? params._id : cuid(),
         objects: new Map<string, Vector>(),
+        walls: [],
         ...params
       }
     );
@@ -66,6 +69,19 @@ export class Location implements GameObject {
       return this;
     }
     return fp.set( 'objects', this.objects.set(objectId, pos), this);
+  }
+
+  addWall(pos: Vector): Location {
+    if (!this.validPos(pos)) {
+      console.error(
+        `Position: ${JSON.stringify(
+          pos,
+        )} is occupied. Wall was not added`,
+      );
+      return this;
+    }
+    this.walls.push(pos);
+    return this;
   }
 
   removeObject(objectId: string): Location {
@@ -93,13 +109,17 @@ export class Location implements GameObject {
   isPositionOccupied(pos: Vector): boolean {
     // Immutable adds an owner id which breaks basic fp.isEqual support.
     const toE = fp.pick(['x', 'y']);
-    return !fp.isNil(find(Array.from(this.objects.values()),(p) => fp.isEqual(toE(pos), toE(p))));
+    const objOccupies = !fp.isNil(find(Array.from(this.objects.values()),(p) => fp.isEqual(toE(pos), toE(p))));
+    const wallOccupies = this.isWallAtPosition(pos);
+    return objOccupies || wallOccupies;
+  }
+
+  isWallAtPosition(pos: Vector): boolean {
+    return !fp.isNil(find(this.walls, (w) => w.toString() === pos.toString()));
   }
 
   objectIdAtPosition(pos: Vector): string {
-    // Immutable adds an owner id which breaks basic fp.isEqual support.
     const toE = fp.pick(['x', 'y']);
-    // cannot use "Map.includes" as there is no apparent way to enhance Immutable.is
     for(let entry of this.objects) {
       if (fp.isEqual(toE(pos), toE(entry[1]))){
         return entry[0];
@@ -145,10 +165,9 @@ export function simpleLocationDraw(location: Location) {
 }
 
 export function getLocationMatrix(location: Location): number[][] {
-  let occupied: Vector[] = Array.from(location.objects.values());
   let marked: number[][] = map(range(0, location.roomLimit.x), (x) => {
     return map(range(0, location.roomLimit.y), (y) => 
-      find(occupied, (o) => o.x === x && o.y === y) ? 10000 : 1
+      !location.validPos(new Vector({x, y})) ? 10000 : 1
     )
   });
   return marked;

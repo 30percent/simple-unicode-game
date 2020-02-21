@@ -2,6 +2,7 @@ const path = require('path');
 const webpack = require('webpack')
 const DashboardPlugin = require('webpack-dashboard/plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const nodeEnv = process.env.NODE_ENV || 'development';
 const isProd = nodeEnv === 'production';
 
@@ -35,7 +36,16 @@ module.exports = {
                 failOnHint: true
             }
         }
-    })],
+    }),
+    new CopyWebpackPlugin(
+      [{
+        from: 'static',
+        to: 'static'
+      }], {
+        copyUnmodified: true
+      }
+    )
+  ],
   module: {
     rules: [
       {

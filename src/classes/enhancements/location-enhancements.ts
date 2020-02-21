@@ -23,6 +23,8 @@ export function symbolLocationDraw(
             } else {
               return "o";
             }
+          } else if (location.isWallAtPosition(new Vector({ x: x, y: y }))){
+            return '\u04FF'
           } else {
             return "_";
           }

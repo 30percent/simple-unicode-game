@@ -1,0 +1,20 @@
+- marg:
+    name: Margaret
+    _id: margaret
+    hp: 10
+    symbol: G
+- mary:
+    name: Mary
+    _id: mary
+    hp: 10
+    symbol: M
+- jack:
+    name: Jack
+    _id: jack
+    hp: 10
+    symbol: J
+- delilah:
+    name: Delilah
+    _id: delilah
+    hp: 10
+    symbol: D

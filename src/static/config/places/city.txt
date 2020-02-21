@@ -1,0 +1,19 @@
+City
+Π
+
+o o o o o o o o o o
+o o o o o o o o o o
+0 o o o o o o o o o
+1 o o o o o o o o o
+2 o o o o o o o o o
+o o o o o o o o o o
+o o o o o o o o o o
+o o o o x x 3 x o o
+o o o o x x o o o o
+o o o o x x o 4 o o
+
+0 delilah
+1 mary
+2 jack
+3 home
+4 margaret

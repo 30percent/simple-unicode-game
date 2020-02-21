@@ -4,6 +4,7 @@ import { GameObject } from "./interfaces/GameObject";
 
 export type BlockageParams = {
   name: string;
+  _id?: string;
   symbol?: string;
 };
 
@@ -17,7 +18,7 @@ export class Blockage
     assign<Blockage, Partial<Blockage>>(
       this,
       {
-        _id: cuid(),
+        _id: (params._id) ? params._id : cuid(),
         ...params
       }
     );
