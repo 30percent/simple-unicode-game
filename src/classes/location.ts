@@ -27,6 +27,7 @@ export type LocationParams = {
   roomLimit: Vector;
   symbol?: string;
   _id?: string;
+  combat_zone?: boolean;
 };
 
 export class Location implements GameObject {
@@ -37,6 +38,7 @@ export class Location implements GameObject {
   objects: Map<string, Vector>;
   walls: Vector[];
   roomLimit: Vector;
+  combat_zone: boolean = false;
 
   constructor(params: LocationParams) {
     assign<Location, Partial<Location>>(

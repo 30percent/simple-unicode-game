@@ -1,12 +1,12 @@
 import { Stringy, GameObject } from "./../interfaces/GameObject";
 import { getVectorFromDirection } from "./../location";
-import { getObjectById } from "./../state";
+import { getObjectById, State } from "./../state";
 import * as fp from "lodash/fp";
 import { Vector, Location } from "../location";
 import { Direction } from "../structs/Direction";
 
 export function symbolLocationDraw(
-  state: Map<string, GameObject>,
+  state: State,
   location: Location
 ) {
   return fp
@@ -17,7 +17,7 @@ export function symbolLocationDraw(
             new Vector({ x: x, y: y })
           );
           if (!fp.isNil(objectId)) {
-            let object = fp.find((obj: GameObject) => obj._id == objectId, Array.from(state.values()));
+            let object = fp.find((obj: GameObject) => obj._id == objectId, Array.from(state.groundObjects.values()));
             if (object) {
               return object.symbol;
             } else {
@@ -50,7 +50,7 @@ function openNeighbor(location: Location, vector: Vector): Vector {
   return fp.get('0', available);
 }
 export function locationMoveDirectionWithEntry(
-  state: Map<string, GameObject>,
+  state: State,
   curLocation: Location,
   objectId: string,
   direction: Direction,

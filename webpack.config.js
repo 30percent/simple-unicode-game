@@ -66,7 +66,7 @@ module.exports = {
   resolve: {
     extensions: [ '.tsx', '.ts', '.js' ],
   },  
-  devtool: 'inline-source-map',
+  devtool: (isProd) ? undefined : 'inline-source-map',
   // output: {
   //   filename: 'bundle.js',
   //   path: path.resolve(__dirname, 'dist'),

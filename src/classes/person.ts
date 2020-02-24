@@ -2,8 +2,9 @@ import { HealthStatusHolder, HealthStatus } from "./interfaces/StatusEffects";
 import * as cuid from "cuid";
 import * as fp from "lodash/fp";
 import { assign } from "lodash";
-import { Stringy, GameObject } from "./interfaces/GameObject";
+import { GameObject } from "./interfaces/GameObject";
 import { HealthInt } from "./interfaces/Health";
+import produce from "immer";
 
 export type PersonParams = {
   name: string;
@@ -13,7 +14,7 @@ export type PersonParams = {
 };
 
 export class Person
-  implements GameObject, HealthInt, HealthStatusHolder {
+  implements GameObject, HealthInt {
   symbol: any;
   hp: number;
   _id: string;
@@ -34,13 +35,24 @@ export class Person
     return `${this.name}. Health: ${this.hp}`;
   }
   
-  setHealth<T extends HealthStatusHolder>(hp: number): T {
-    return fp.set<T>('hp', hp, this);
+  setHealth(hp: number): Person {
+    return produce(this, (draft: Person) => {
+      draft.hp = hp;
+      return draft;
+    })
   }
 
-  removeStatus<T extends HealthStatusHolder>(status: HealthStatus): T {
-    let o = fp.clone<T>(this as unknown as T);
-    o.healthStatuses.delete(status);
-    return o;
+  removeStatus(status: HealthStatus): Person {
+    return produce(this, (draft: Person) => {
+      draft.healthStatuses.delete(status);
+      return draft;
+    })
+  }
+
+  addHealthStatus(status: HealthStatus): Person {
+    return produce(this, (draft: Person) => {
+      draft.healthStatuses.add(status);
+      return draft;
+    })
   }
 }

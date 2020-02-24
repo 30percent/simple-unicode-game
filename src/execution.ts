@@ -1,4 +1,5 @@
 import * as fp from 'lodash/fp';
+import { doDamage } from "./classes/routines/combat";
 import { Blockage } from "./classes/block";
 
 import { locationMoveDirectionWithEntry } from './classes/enhancements/location-enhancements';
@@ -14,31 +15,20 @@ import { Location, Vector } from './classes/location';
 import { Person } from './classes/person';
 import { createPaceFoo, createClampedWander } from './classes/routines/pace';
 import { tickFoo } from './classes/routines/tick';
-import { getCurrentLocation, locationContaining, getObjectByPred } from './classes/state';
+import { getCurrentLocation, locationContaining, getObjectByPred, State } from './classes/state';
 import { isNil, find, noop } from 'lodash';
 import { Direction } from './classes/structs/Direction';
 import { getVectorDirection } from './classes/enhancements/vector-enhancements';
 import { healthProgress, pathSpeed } from './classes/routines/interval';
+import { Weapon } from './classes/items/weapon';
 
 let margWander: (loc: Location) => Location;
 
 // Replace with Generator at earliest convenience
 export function startTicking(
-  state: Map<string, GameObject>,
+  state: State,
   curLocation: Location,
-  toCall: (state: Map<string, GameObject>) => any,
-) {
-  let inState = state;
-  tickFoo(100, 1000, () => {
-    const nState = tick(inState, curLocation._id);
-    toCall(nState);
-  });
-}
-
-export function sTick2(
-  state: Map<string, GameObject>,
-  curLocation: Location,
-  toCall: (state: Map<string, GameObject>) => any
+  toCall: (state: State) => any
 ) {
   let count = 0;
   let time = 100;
@@ -56,43 +46,63 @@ export function sTick2(
     console.log(`Ran tick: ${iter}/${count}`)
   }
   interval = setInterval(_next, time);
+  return interval;
 }
 
-function tick(oldState: Map<string, GameObject>, locationId: string): Map<string, GameObject> {
+export function manualTick(
+  state: State,
+  curLocation: Location,
+  toCall: (state: State) => any
+) {
+  const nState = tick(state, curLocation._id);
+  toCall(nState);
+}
+
+function tick(oldState: State, locationId: string): State {
   let newState = fp.clone(oldState);
-  oldState.forEach((object: GameObject) => {
+  let userPerson = getObjectByPred(oldState, (obj: GameObject) => obj.symbol === 'J');
+  newState = moveUser(newState, userPerson._id);
+  oldState.groundObjects.forEach((object: GameObject) => {
     let newO = object;
-    if (isHealthStatusHolder(object)) {
-      newO = healthProgress(object);
+    if (object instanceof Person) {
+      if (isHealthStatusHolder(object)) {
+        newO = healthProgress(object);
+      }
     }
-    if (object instanceof Location && fp.isEqual(object._id, locationId)) {
-      newO = pathSpeed(object, oldState.get('delilah') as Person, getVectorDirection(object.objects.get('margaret'), Direction.Up));
-      //newO = paceRight(maryLoc, mary._id); // just an example...
-      // newO = 
-    }
-    if (object instanceof Location && !isNil(margWander)) {
-      // newO = margWander(object);
+    // routine example
+    if (object instanceof Location) {
+      if (object instanceof Location && fp.isEqual(object._id, locationId)) {
+        // TODO: This should "managed" by state...kind of
+        if (object.positionObjectAt('delilah') != null) {
+          newO = pathSpeed(object, oldState.groundObjects.get('delilah') as Person, getVectorDirection(object.objects.get('margaret'), Direction.Up));
+        }
+      }
+      if (object.combat_zone && object._id === locationId) {
+        let peopleInLoc = object.objects;
+        fp.forEach((o) => {
+          newState = doDamage(newState, o[0]);
+        }, Array.from(peopleInLoc))
+      }
     }
     if (newO !== object) {
-      newState.set(newO._id, newO);
+      newState.groundObjects.set(newO._id, newO);
     }
   });
-  let userPerson = getObjectByPred(oldState, (obj: GameObject) => obj.symbol === 'J');
   // let userPerson = fp.find((obj) => obj.symbol === 'J', Array.from(newState))._id;
-  return moveUser(newState, userPerson._id);
+  return newState;
 }
 
 let toMove: Direction = null;
 export function moveYou(direction: Direction) {
   if (!isNil(direction)) toMove = direction;
 }
-function moveUser(oldState: Map<string, GameObject>, userId: string) {
+function moveUser(oldState: State, userId: string) {
   let newState = fp.clone(oldState);
   let locationId = getCurrentLocation(newState, userId)._id;
   if (toMove !== null) {
     let curLocation = fp.find(
       (obj) => obj._id === locationId,
-    Array.from(newState.values())) as Location;
+    Array.from(newState.groundObjects.values())) as Location;
     let locations = locationMoveDirectionWithEntry(
       newState,
       curLocation,
@@ -101,10 +111,10 @@ function moveUser(oldState: Map<string, GameObject>, userId: string) {
       1,
     );
     if (locations.firstLoc) {
-      newState.set(locations.firstLoc._id, locations.firstLoc);
+      newState.groundObjects.set(locations.firstLoc._id, locations.firstLoc);
     }
     if (locations.secondLoc) {
-      newState.set(locations.secondLoc._id, locations.secondLoc);
+      newState.groundObjects.set(locations.secondLoc._id, locations.secondLoc);
     }
     toMove = null;
   }

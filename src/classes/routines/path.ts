@@ -8,8 +8,8 @@ type QueueEntry = {
   loc: Vector;
   cost: number;
 }
-function manhattanH(start: Vector, goal: Vector) {
-  return (Math.abs(start.x - goal.x) + Math.abs(start.y - goal.y)) * 2;
+export function manhattanH(start: Vector, goal: Vector) {
+  return (Math.abs(start.x - goal.x) + Math.abs(start.y - goal.y));
 }
 function getMatItem(matrix: number[][], vector: Vector) {
   return get(matrix, `[${vector.x}][${vector.y}]`)

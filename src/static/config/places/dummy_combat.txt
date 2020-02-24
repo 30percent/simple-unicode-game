@@ -1,0 +1,13 @@
+Dummy Combat
+⍯
+combat_zone
+
+x x x x x x x
+x o o o o o x
+x o o 1 o o x
+x o o o o o x
+x o o o o o x
+x x x 0 x x x
+
+0 city
+1 dummy

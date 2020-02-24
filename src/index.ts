@@ -1,9 +1,9 @@
 import { Direction } from "./classes/structs/Direction";
-import { startTicking, sTick2, moveYou } from './execution';
+import { startTicking, moveYou, manualTick } from './execution';
 import { Location, Vector } from './classes/location';
 import * as fp from 'lodash/fp';
 import { GameObject } from './classes/interfaces/GameObject';
-import { getCurrentLocation, getObjectByPred } from './classes/state';
+import { getCurrentLocation, getObjectByPred, State } from './classes/state';
 import { symbolLocationDraw } from './classes/enhancements/location-enhancements';
 import { Person } from './classes/person';
 import { getPath } from "./classes/routines/path";
@@ -13,33 +13,53 @@ const css = require('./main.css');
 
 export default class Main {
   constructor() {
-    console.log('Typescript Webpack starter launched');
-    parsePeople(new Map<string, GameObject>()).then(
+    let startState = new State();
+    parsePeople(startState).then(
       parsePlaces
     ).then((startState) => {
       let userId = getObjectByPred(startState, (obj) => obj.symbol === 'J')._id;
       let startLocation: Location = getCurrentLocation(startState, userId);
-      let path = getPath(startLocation, startState.get(userId) as Person, new Vector({x: 0, y: 1}));
-      console.log(`Path: ${path}`);
-      sTick2(startState, startLocation, (curState: Map<string, GameObject>) => {
+      let nextState: State = startState; // TODO: integrate all the "state progress" properly.
+      let tickTimer: number = null;
+      let domHandling = (curState: State) => {
         let curLocation = getCurrentLocation(curState, userId);
-        if (curLocation == null)
-          document.getElementById('first-location').innerHTML = '';
-        else {
-          document.getElementById(
-            'first-location',
-          ).innerHTML = symbolLocationDraw(curState, curLocation);
-        }
         document.getElementById('person-info').innerHTML = fp
           .filter((obj) => {
-            return obj instanceof Person;
-          }, Array.from(curState.values()))
+            return obj instanceof Person && curLocation.objects.has(obj._id);
+          }, Array.from(curState.groundObjects.values()))
           .map((person) => person.asString())
           .sort()
           .join('\n');
-      });
+        nextState = curState;
+        let locationHTML = '';
+        if (curLocation == null) {
+          locationHTML = '';
+        } else if (curLocation.combat_zone) {
+          if (tickTimer != null) {
+            clearInterval(tickTimer);
+            tickTimer = null;
+          }
+          document.getElementById('location-name').innerHTML = curLocation.name;
+          locationHTML= symbolLocationDraw(curState, curLocation);
+        } else {
+          document.getElementById('location-name').innerHTML = curLocation.name;
+          locationHTML= symbolLocationDraw(curState, curLocation);
+          // (See above TODO)
+          if (tickTimer == null) {
+            tickTimer = startTicking(nextState, startLocation, domHandling);
+          }
+        }
+        document.getElementById(
+          'first-location',
+        ).innerHTML = locationHTML;
+      };
+      tickTimer = startTicking(startState, startLocation, domHandling);
       document.addEventListener('keyup', (event) => {
         moveYou(__directionFromKey(event));
+        if (tickTimer == null) {
+          let curLocation = getCurrentLocation(nextState, userId);
+          manualTick(nextState, curLocation, domHandling);
+        }
       });
     });
   }

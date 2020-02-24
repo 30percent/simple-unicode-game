@@ -19,3 +19,35 @@
 pre#first-location {
   font-family: "Unifont";
 }
+.map-container {
+  border: 1px solid gray;
+  padding: 5px;
+  /* width: 350px; */
+  text-align: center;
+  /* height: 400px; */
+  grid-column-start: 1;
+  grid-column-end: 1;
+  display: grid;
+  align-items: center;
+}
+.location-status {
+  grid-column-start: 1;
+  grid-column-end: 1;
+  grid-row-start: 2;
+  grid-row-end: 3;
+}
+#first-location {
+  font-size: 16px;
+}
+.menu-container {
+  grid-column-start: 2;
+  grid-row-start: 1;
+  grid-row-end: 3;
+  border: 1px solid gray;
+}
+.full-container {
+  display: grid;
+  grid-gap: 3px;
+  grid-template-rows: [line1] 400px [line2] 100px;
+  grid-template-columns: [row1-start] 400px [row2-start] 400px;
+}

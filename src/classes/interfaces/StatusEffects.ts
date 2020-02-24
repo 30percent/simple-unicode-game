@@ -11,9 +11,9 @@ export interface HealthStatusHolder extends HealthInt, GameObject {
   healthStatuses: Set<HealthStatus>;
   hp: number;
   
-  setHealth<T extends HealthStatusHolder>(hp: number): T;
+  setHealth<T>(hp: number): T;
 
-  removeStatus<T extends HealthStatusHolder>(status: HealthStatus): T;
+  removeStatus<T>(status: HealthStatus): T;
   
 }
 

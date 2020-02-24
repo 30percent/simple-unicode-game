@@ -11,12 +11,23 @@
   </title>
 
   <meta name="description" content="<%= htmlWebpackPlugin.options.title %>">
+  <style type="text/css">
+  </style>
 </head>
 
 <body>
-  <pre id="first-location"></pre>
-  <div id="current-tick"></div>
-  <pre id="person-info"></pre>
+  <div class="full-container">
+      <div class="map-container">
+        <div id="location-name"></div>
+          <pre id="first-location"></pre>
+      </div>
+      <div class="location-status">
+          <pre id="person-info"></pre>
+      </div>
+      <div class="menu-container">
+
+      </div>
+  </div>
 </body>
 
 </html>
