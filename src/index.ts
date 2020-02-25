@@ -1,5 +1,5 @@
 import { Direction } from "./classes/structs/Direction";
-import { startTicking, moveYou, manualTick } from './execution';
+import { startTicking, moveYou, manualTick, createSampleRoutines } from './execution';
 import { Location, Vector } from './classes/location';
 import * as fp from 'lodash/fp';
 import { GameObject } from './classes/interfaces/GameObject';
@@ -16,7 +16,9 @@ export default class Main {
     let startState = new State();
     parsePeople(startState).then(
       parsePlaces
-    ).then((startState) => {
+    ).then((nextState) => {
+      return createSampleRoutines(nextState);
+    }).then((startState) => {
       let userId = getObjectByPred(startState, (obj) => obj.symbol === 'J')._id;
       let startLocation: Location = getCurrentLocation(startState, userId);
       let nextState: State = startState; // TODO: integrate all the "state progress" properly.

@@ -1,4 +1,5 @@
 import * as fp from 'lodash/fp';
+import * as _ from 'lodash';
 import { doDamage } from "./classes/routines/combat";
 import { Blockage } from "./classes/block";
 
@@ -21,8 +22,8 @@ import { Direction } from './classes/structs/Direction';
 import { getVectorDirection } from './classes/enhancements/vector-enhancements';
 import { healthProgress, pathSpeed } from './classes/routines/interval';
 import { Weapon } from './classes/items/weapon';
-
-let margWander: (loc: Location) => Location;
+import produce from 'immer';
+import { findMapValue } from './utils/mapUtils';
 
 // Replace with Generator at earliest convenience
 export function startTicking(
@@ -49,6 +50,50 @@ export function startTicking(
   return interval;
 }
 
+export function createSampleRoutines(
+  state: State
+): State {
+  let routines = [
+    (state: State) => {
+      // user movement
+      // return produce(state, (draft) => {
+        let userPerson = state.groundObjects.get('jack');
+        return moveUser(state, userPerson._id);
+      // })
+    },
+    // Path delilah to margaret
+    (state: State) => {
+      return produce(state, (draft: State) => {
+        const del = draft.groundObjects.get('delilah') as Person;
+        const location: Location = findMapValue(draft.groundObjects, (go, _id) => go instanceof Location && go.objects.has(del._id)) as Location;
+        const newLocation = pathSpeed(location, del, getVectorDirection(location.objects.get('margaret'), Direction.Up));
+        draft.groundObjects.set(newLocation._id, newLocation);
+        return draft;
+      })
+    },
+    (state: State) => {
+      // manage health stati
+      return state;
+    },
+    (state: State): State => {
+      let activeLocation: Location = getCurrentLocation(state, 'jack');
+      if (activeLocation.combat_zone) {
+        let peopleInLoc = activeLocation.objects;
+        return produce(state, (newState) => {
+          fp.forEach((o) => {
+            newState = doDamage(newState, o);
+          }, Array.from(peopleInLoc.keys()));
+          return newState;
+        })
+      } else {
+        return state;
+      }
+    }
+  ];
+  state.routines = state.routines.concat(routines);
+  return state;
+}
+
 export function manualTick(
   state: State,
   curLocation: Location,
@@ -60,35 +105,9 @@ export function manualTick(
 
 function tick(oldState: State, locationId: string): State {
   let newState = fp.clone(oldState);
-  let userPerson = getObjectByPred(oldState, (obj: GameObject) => obj.symbol === 'J');
-  newState = moveUser(newState, userPerson._id);
-  oldState.groundObjects.forEach((object: GameObject) => {
-    let newO = object;
-    if (object instanceof Person) {
-      if (isHealthStatusHolder(object)) {
-        newO = healthProgress(object);
-      }
-    }
-    // routine example
-    if (object instanceof Location) {
-      if (object instanceof Location && fp.isEqual(object._id, locationId)) {
-        // TODO: This should "managed" by state...kind of
-        if (object.positionObjectAt('delilah') != null) {
-          newO = pathSpeed(object, oldState.groundObjects.get('delilah') as Person, getVectorDirection(object.objects.get('margaret'), Direction.Up));
-        }
-      }
-      if (object.combat_zone && object._id === locationId) {
-        let peopleInLoc = object.objects;
-        fp.forEach((o) => {
-          newState = doDamage(newState, o[0]);
-        }, Array.from(peopleInLoc))
-      }
-    }
-    if (newO !== object) {
-      newState.groundObjects.set(newO._id, newO);
-    }
+  newState.routines.forEach((act) => {
+    newState = act(newState);
   });
-  // let userPerson = fp.find((obj) => obj.symbol === 'J', Array.from(newState))._id;
   return newState;
 }
 

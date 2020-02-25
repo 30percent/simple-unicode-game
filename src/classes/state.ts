@@ -9,10 +9,12 @@ export type InventoryState = Map<string, Inventory>;
 export class State {
   groundObjects: Map<string, GameObject>;
   inventories: Map<string, Inventory>;
+  routines: ((state: State) => State)[];
   // add Routines
   constructor() {
     this.groundObjects = new Map();
     this.inventories = new Map();
+    this.routines = [];
   }
 }
 

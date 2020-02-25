@@ -9,6 +9,7 @@
 * Display current inventory
 * Item pickup
 * "Kill" Person on hp 0 (ignore in state, combat skips over)
+* Routines should support "prioritization"
 
 #Medium
 * Basic Dialog (Form on side?)
