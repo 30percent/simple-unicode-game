@@ -1,6 +1,6 @@
 import { Person } from "../person";
 import PriorityQueue from 'tinyqueue';
-import { Vector, Location, getLocationMatrix } from "../location";
+import { Vector, Place, getLocationMatrix } from "../location";
 import { forEach, get, filter, map } from "lodash";
 import { isObject } from "util";
 
@@ -29,7 +29,7 @@ function matNeighbors(matrix: number[][], vector: Vector): Vector[] {
     isObject
   )
 }
-export function getPath(location: Location, person: Person, destination: Vector): Vector[] {
+export function getPath(location: Place, person: Person, destination: Vector): Vector[] {
   const start: Vector = location.positionObjectAt(person._id);
   if (destination.toString() === start.toString()) {
     return [];
@@ -68,7 +68,7 @@ export function getPath(location: Location, person: Person, destination: Vector)
   return (current.toString() === start.toString()) ? final.reverse() : [];
 }
 
-export function progressPath(location: Location, person: Person, destination: Vector): Location {
+export function progressPath(location: Place, person: Person, destination: Vector): Place {
   let path = getPath(location, person, destination);
   if (path.length > 0) {
     return location.setObjectLocation(person._id, path[1]);

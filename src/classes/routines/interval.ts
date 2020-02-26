@@ -2,7 +2,7 @@ import { GameObject } from "../interfaces/GameObject";
 import { HealthStatusHolder } from "./../interfaces/StatusEffects";
 import { execHealthStatus } from "../interfaces/StatusEffects";
 import { progressPath } from "./path";
-import { Vector, Location } from "../location";
+import { Vector, Place } from "../location";
 import { Person } from "../person";
 
 function progressGO<T extends (...args: any[]) => any>(
@@ -21,4 +21,4 @@ function progressGO<T extends (...args: any[]) => any>(
   }
 }
 export const healthProgress = progressGO<typeof execHealthStatus>(50, execHealthStatus, (go: HealthStatusHolder) => go);
-export const pathSpeed = progressGO<typeof progressPath>(10, progressPath, (location: Location, ...a: any[]) => location);
+export const pathSpeed = progressGO<typeof progressPath>(10, progressPath, (location: Place, ...a: any[]) => location);

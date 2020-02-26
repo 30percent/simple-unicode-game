@@ -10,6 +10,7 @@ type ItemHolder = {
 }
 export class Inventory implements Stringy {
   readonly items: ItemHolder;
+  readonly activeItem: string;
 
   constructor() {
     this.items = {};
@@ -40,9 +41,20 @@ export class Inventory implements Stringy {
     })
   }
 
+  setItemActive(item: BaseItem | string) {
+    return produce(this, (draft) => {
+      if (fp.isString(item)) {
+        draft.activeItem = item;
+      } else {
+        draft.activeItem = item._id;
+      }
+      return draft;
+    });
+  }
+
   asString(): string {
     return fp.map((item) => {
-      return `${item.object.asString()}: ${item.amount}`
+      return `${this.activeItem === item.object._id ? '*' : ''} ${item.object.asString()} (${item.amount})`
     }, this.items).join('\n');
   }
 }

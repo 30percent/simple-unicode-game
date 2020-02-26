@@ -7,18 +7,12 @@ export type WeaponParams = {
 export class Weapon extends BaseItem {
   range: number;
   damage: number;
-  active: boolean = false;
   constructor({range, damage, ...params}: WeaponParams) {
     super(params);
     Object.assign(this, {range, damage});
   }
 
-  setActive(a: boolean) {
-    this.active = a;
-    return this;
-  }
-
   asString() {
-    return `${super.asString()} | D${this.damage}`;
+    return `${super.asString()} | D${this.damage} | R${this.range}`;
   }
 }

@@ -30,7 +30,7 @@ export type LocationParams = {
   combat_zone?: boolean;
 };
 
-export class Location implements GameObject {
+export class Place implements GameObject {
   symbol: string = '\u06E9';
   _id: string;
   name: string;
@@ -41,7 +41,7 @@ export class Location implements GameObject {
   combat_zone: boolean = false;
 
   constructor(params: LocationParams) {
-    assign<Location, Partial<Location>>(
+    assign<Place, Partial<Place>>(
       this,
       {
         _id: (params._id) ? params._id : cuid(),
@@ -61,7 +61,7 @@ export class Location implements GameObject {
 
   // Support different sizes
   // Check conflicts
-  addObject(pos: Vector, objectId: string): Location {
+  addObject(pos: Vector, objectId: string): Place {
     if (!this.validPos(pos)) {
       console.error(
         `Position: ${JSON.stringify(
@@ -73,7 +73,7 @@ export class Location implements GameObject {
     return fp.set( 'objects', this.objects.set(objectId, pos), this);
   }
 
-  addWall(pos: Vector): Location {
+  addWall(pos: Vector): Place {
     if (!this.validPos(pos)) {
       console.error(
         `Position: ${JSON.stringify(
@@ -86,13 +86,13 @@ export class Location implements GameObject {
     return this;
   }
 
-  removeObject(objectId: string): Location {
+  removeObject(objectId: string): Place {
     let newLoc = cloneDeep(this.objects);
     newLoc.delete(objectId);
     return fp.set('objects', newLoc, this);
   }
 
-  setObjectLocation(objectId: string, pos: Vector): Location {
+  setObjectLocation(objectId: string, pos: Vector): Place {
     if (!this.validPos(pos)) {
       console.error(
         `Position: ${JSON.stringify(
@@ -145,14 +145,14 @@ export class Location implements GameObject {
 
 // TODO: Add enter room logic
 export function moveObject(
-  location: Location,
+  location: Place,
   objectId: string,
   pos: Vector,
-): Location {
+): Place {
   return location.setObjectLocation(objectId, pos);
 }
 
-export function simpleLocationDraw(location: Location) {
+export function simpleLocationDraw(location: Place) {
   return fp
     .map((y) => {
       return fp
@@ -166,7 +166,7 @@ export function simpleLocationDraw(location: Location) {
     .join('\n');
 }
 
-export function getLocationMatrix(location: Location): number[][] {
+export function getLocationMatrix(location: Place): number[][] {
   let marked: number[][] = map(range(0, location.roomLimit.x), (x) => {
     return map(range(0, location.roomLimit.y), (y) => 
       !location.validPos(new Vector({x, y})) ? 10000 : 1
@@ -176,7 +176,7 @@ export function getLocationMatrix(location: Location): number[][] {
 }
 
 export function getVectorFromDirection(
-  location: Location,
+  location: Place,
   objectId: string,
   direction: Direction,
   amount: number,
@@ -204,11 +204,11 @@ export function getVectorFromDirection(
 }
 
 export function moveDirection(
-  location: Location,
+  location: Place,
   objectId: string,
   direction: Direction,
   amount: number,
-): Location {
+): Place {
   let curLoc: Vector = location.objects.get(objectId);
   let newLoc: Vector = curLoc;
   switch (direction) {

@@ -1,6 +1,6 @@
 import * as fp from 'lodash/fp';
 import * as _ from 'lodash';
-import { Vector, Location } from './classes/location';
+import { Vector, Place } from './classes/location';
 import { GameObject } from './classes/interfaces/GameObject';
 import cuid = require('cuid');
 import { Blockage } from './classes/block';
@@ -63,7 +63,7 @@ export async function parsePlaces(state: State) {
       })
       return acc;
     }, [] as {id: string, v: Vector}[]);
-    let newPlace = new Location({
+    let newPlace = new Place({
       name: info[0],
       roomLimit: mapSize,
       _id: key,
@@ -98,7 +98,8 @@ export async function parsePeople(state: State) {
       fp.forEach((it) => {
         switch(it.type) {
           case 'Weapon': 
-            inv.addItem(new Weapon({range: it.range, damage: it.damage, name: it.id, _id: it.id}).setActive(it.active));
+            inv.addItem(new Weapon({range: it.range, damage: it.damage, name: it.id, _id: it.id}));
+            inv = inv.setItemActive(it.id);
             break;
           default:
             inv.addItem(new BaseItem({_id: it.id, name: it.id}));

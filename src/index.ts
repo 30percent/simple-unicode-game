@@ -1,6 +1,6 @@
 import { Direction } from "./classes/structs/Direction";
-import { startTicking, moveYou, manualTick, createSampleRoutines } from './execution';
-import { Location, Vector } from './classes/location';
+import { startTicking, manualTick } from './execution';
+import { Place, Vector } from './classes/location';
 import * as fp from 'lodash/fp';
 import { GameObject } from './classes/interfaces/GameObject';
 import { getCurrentLocation, getObjectByPred, State } from './classes/state';
@@ -8,19 +8,18 @@ import { symbolLocationDraw } from './classes/enhancements/location-enhancements
 import { Person } from './classes/person';
 import { getPath } from "./classes/routines/path";
 import { parsePlaces, parsePeople } from "./parseConfig";
+import { initialiseState } from "./init";
+import { moveYou } from "./classes/routines/userControl";
 
 const css = require('./main.css');
 
 export default class Main {
   constructor() {
-    let startState = new State();
-    parsePeople(startState).then(
-      parsePlaces
-    ).then((nextState) => {
-      return createSampleRoutines(nextState);
-    }).then((startState) => {
+    let initState = initialiseState();
+    // TODO: Move this out to separate handlers.
+    initState.then((startState) => {
       let userId = getObjectByPred(startState, (obj) => obj.symbol === 'J')._id;
-      let startLocation: Location = getCurrentLocation(startState, userId);
+      let startLocation: Place = getCurrentLocation(startState, userId);
       let nextState: State = startState; // TODO: integrate all the "state progress" properly.
       let tickTimer: number = null;
       let domHandling = (curState: State) => {
@@ -52,6 +51,9 @@ export default class Main {
           }
         }
         document.getElementById(
+          'user-inventory'
+        ).innerHTML = startState.inventories.get(startState.userId).asString();
+        document.getElementById(
           'first-location',
         ).innerHTML = locationHTML;
       };
@@ -59,8 +61,7 @@ export default class Main {
       document.addEventListener('keyup', (event) => {
         moveYou(__directionFromKey(event));
         if (tickTimer == null) {
-          let curLocation = getCurrentLocation(nextState, userId);
-          manualTick(nextState, curLocation, domHandling);
+          manualTick(nextState, domHandling);
         }
       });
     });

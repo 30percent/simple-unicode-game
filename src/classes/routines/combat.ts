@@ -3,7 +3,7 @@ import * as fp from 'lodash/fp';
 import * as _ from 'lodash';
 import { Weapon } from "../items/weapon";
 import { GameObject } from "../interfaces/GameObject";
-import { Location, Vector} from "../location";
+import { Place, Vector} from "../location";
 import { manhattanH } from "./path";
 import { Person } from "../person";
 export function doDamage(state: State, activeId: string) {
@@ -15,7 +15,7 @@ export function doDamage(state: State, activeId: string) {
   let playerActiveWeapon = _.get(_.find(
     fp.get('items', playerInventory),
     (item) => { 
-      return item.object instanceof Weapon && item.object.active }
+      return item.object instanceof Weapon && item.object._id === playerInventory.activeItem }
     ), 'object');
   if (playerActiveWeapon != null && playerActiveWeapon instanceof Weapon ) {
     let enemyId = objectsInRange(state, activeId, playerActiveWeapon.range);

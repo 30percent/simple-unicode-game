@@ -2,12 +2,12 @@ import { Stringy, GameObject } from "./../interfaces/GameObject";
 import { getVectorFromDirection } from "./../location";
 import { getObjectById, State } from "./../state";
 import * as fp from "lodash/fp";
-import { Vector, Location } from "../location";
+import { Vector, Place } from "../location";
 import { Direction } from "../structs/Direction";
 
 export function symbolLocationDraw(
   state: State,
-  location: Location
+  location: Place
 ) {
   return fp
     .map(y => {
@@ -33,7 +33,7 @@ export function symbolLocationDraw(
     }, fp.range(0, location.roomLimit.y))
     .join("\n");
 }
-function openNeighbor(location: Location, vector: Vector): Vector {
+function openNeighbor(location: Place, vector: Vector): Vector {
   let matR: Vector[] = [];
   let potentials: Vector[] = [
     new Vector({ x: vector.x - 1, y: vector.y }),
@@ -51,16 +51,16 @@ function openNeighbor(location: Location, vector: Vector): Vector {
 }
 export function locationMoveDirectionWithEntry(
   state: State,
-  curLocation: Location,
+  curLocation: Place,
   objectId: string,
   direction: Direction,
   amount: number
-):{firstLoc: Location, secondLoc: Location} {
+):{firstLoc: Place, secondLoc: Place} {
   let pos = getVectorFromDirection(curLocation, objectId, direction, amount);
   let objIdAtPos = curLocation.objectIdAtPosition(pos);
   if (!fp.isNil(objIdAtPos)) {
     let objAtPos = getObjectById(state, objIdAtPos)
-    if(objAtPos instanceof Location) {
+    if(objAtPos instanceof Place) {
       // Enter room (move object out of room into new room)
       // Get new placement 
       // TODO: (this mess needs to be fixed/cleaned)

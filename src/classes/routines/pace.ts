@@ -1,4 +1,4 @@
-import { moveDirection, Location } from '../location';
+import { moveDirection, Place } from '../location';
 import { getVectorFromDirection } from '../location';
 import { noop, isEqual } from 'lodash/fp';
 import { Direction } from '../structs/Direction';
@@ -20,9 +20,9 @@ function __randomDirection(): Direction {
 export function createPaceFoo(
   paceCount: number,
   direction: Direction,
-): (location: Location, id: string) => Location {
+): (location: Place, id: string) => Place {
   let paceIter = 0;
-  return function(location: Location, id: string) {
+  return function(location: Place, id: string) {
     if (paceIter >= paceCount) {
       direction = __swapDirection(direction);
       paceIter = 0;
@@ -35,12 +35,12 @@ export function createPaceFoo(
 }
 
 export function createClampedWander(
-  startingLoc: Location,
+  startingLoc: Place,
   range: number,
   id: string,
-): (location: Location) => Location {
+): (location: Place) => Place {
   const startingVec = startingLoc.positionObjectAt(id);
-  return function(location: Location): Location {
+  return function(location: Place): Place {
     const direction = __randomDirection();
     let next = getVectorFromDirection(location, id, direction, 1);
     if (
