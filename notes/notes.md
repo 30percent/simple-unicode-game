@@ -10,6 +10,8 @@
 * Item pickup
 * ~~"Kill" Person on hp 0 (ignore in state, combat skips over)~~
 * Routines should support "prioritization"
+* Allow map config to reference a .json/.map for new Objects
+* **UNDO FILE ENDINGS GARBAGE, TOO MANY CHANGED FILES**
 
 #Medium
 * Basic Dialog (Form on side?)

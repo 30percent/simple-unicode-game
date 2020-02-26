@@ -27,15 +27,5 @@
         "damage": 1
       }
     ]
-  },
-  {
-    "name": "Dummy",
-    "id": "dummy",
-    "symbol": "⍚"
-  },
-  {
-    "name": "Mayor",
-    "id": "mayor",
-    "symbol": "M"
   }
 ]
