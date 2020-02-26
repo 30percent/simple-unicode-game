@@ -8,14 +8,16 @@
   * box for object current map
 * Display current inventory
 * Item pickup
-* "Kill" Person on hp 0 (ignore in state, combat skips over)
+* ~~"Kill" Person on hp 0 (ignore in state, combat skips over)~~
 * Routines should support "prioritization"
 
 #Medium
 * Basic Dialog (Form on side?)
 * Items and inventory
   * Method to use inventory?
+  * Set item active
 * Build out "City"
+* Drop inventory on death
 
 #Long
 * "Minion" interaction

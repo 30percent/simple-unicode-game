@@ -1,4 +1,5 @@
 import { State, Routine, getCurrentLocation } from "./classes/state";
+import { filterMapValue } from "./utils/mapUtils";
 import { moveUser } from "./classes/routines/userControl";
 import produce from "immer";
 import { Person } from "./classes/person";
@@ -30,9 +31,24 @@ export function createSampleRoutines(
         return state;
       }
     },
+    /* Kill people */ (state: State): State => {
+      return produce(state, (draft) => {
+        filterMapValue(draft.groundObjects, (go, _id) => go instanceof Person).forEach((person: Person) => {
+          if (person.hp < 1 && draft.userId != person._id) {
+            draft = draft.removeObject(person);
+            let location = getCurrentLocation(draft, person._id);
+            if (location != null) {
+              location = location.removeObject(person._id);
+              draft.groundObjects.set(location._id, location);
+            }
+          }
+        });
+        return draft;
+      })
+    },
     // Path delilah to margaret
     (state: State) => {
-      return produce(state, (draft: State) => {
+      return produce(state, (draft) => {
         const del = draft.groundObjects.get('delilah') as Person;
         const location: Place = findMapValue(draft.groundObjects, (go, _id) => go instanceof Place && go.objects.has(del._id)) as Place;
         const newLocation = pathSpeed(location, del, getVectorDirection(location.objects.get('margaret'), Direction.Up));

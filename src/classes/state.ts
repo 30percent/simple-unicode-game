@@ -29,6 +29,17 @@ export class State {
     this.routines = this.routines.concat(routines);
     return this;
   }
+
+  removeObject(object: string | GameObject): State {
+    return produce(this, (draft) => {
+      if (fp.isString(object)) {
+        draft.groundObjects.delete(object);
+      } else {
+        draft.groundObjects.delete(object._id);
+      }
+      return draft;
+    })
+  }
 }
 
 export function getObjectById(state: State, id: string) : GameObject {
