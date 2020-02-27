@@ -79,9 +79,9 @@ export function createSampleRoutines(
 
 export async function initialiseState(): Promise<State> {
   let startState = new State();
-  return parsePeople(startState).then(
-    parsePlaces
-  ).then((nextState) => {
+  return parsePeople(startState).then((state) => {
+    return parsePlaces(state)
+  }).then((nextState) => {
     return createSampleRoutines(nextState);
   });
 }

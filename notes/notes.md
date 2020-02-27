@@ -33,7 +33,9 @@
 
 # Cleanup | Maintenance
 * Fix garbage config code
-* Consider immer.js
+* ~~Consider immer.js~~
+* Improve immer integration, rely less on `place = place...`
+* Remove `Map<string, T>` (it complicates for no benefit)
 * ~~Improve "scenery" handling (walls)~~
 
 
