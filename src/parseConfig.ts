@@ -13,7 +13,7 @@ import { Weapon } from './classes/items/weapon';
 import { BaseItem } from './classes/items/item';
 
 async function fetchMaps(): Promise<{[s: string]: string}> {
-  let places = ['city', 'home', 'town_hall', 'dummy_combat', 'bedroom'];
+  let places = ['city', 'home', 'town_hall', 'dummy_combat', 'bedroom', 'combat_sample'];
   let paths = _.reduce(places, (acc, p) => fp.set(p, `static/config/places/${p}.map`, acc), {});
   // let paths: {[s: string]: string} = {
   //   city: 'static/config/places/city.txt',

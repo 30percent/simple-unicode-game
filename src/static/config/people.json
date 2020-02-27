@@ -23,6 +23,20 @@
         "id": "Spear",
         "type": "Weapon",
         "active": true,
+        "range": 2,
+        "damage": 2
+      }
+    ]
+  },
+  {
+    "name": "Attack Dummy",
+    "id": "attack_dummy",
+    "symbol": "A",
+    "inventory": [
+      {
+        "id": "Short Sword",
+        "type": "Weapon",
+        "active": true,
         "range": 1,
         "damage": 1
       }

@@ -8,7 +8,7 @@ o o o 6 o 5 o o o o
 2 o o o o o o o o o
 o o o o o o o o o o
 o o o o o o o o o o
-o o o o x x 3 x o o
+o 7 o o x x 3 x o o
 o o o o x x o o o o
 o o o o x x o 4 o o
 
@@ -19,3 +19,4 @@ o o o o x x o 4 o o
 4 margaret
 5 town_hall
 6 dummy_combat
+7 combat_sample

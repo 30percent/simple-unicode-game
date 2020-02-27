@@ -12,6 +12,7 @@ import { Place } from "./classes/location";
 
 import * as fp from 'lodash/fp';
 import { parsePeople, parsePlaces } from "./parseConfig";
+import { basicEnemyCombat } from "./classes/routines/basic-enemy-attack";
 
 export function createSampleRoutines(
   state: State
@@ -62,7 +63,16 @@ export function createSampleRoutines(
     },
     (state: State) => {
       return moveUser(state);
-    },
+    },,
+    (state: State) => {
+      if (state.groundObjects.get('attack_dummy')){
+        return produce(state, (draft) => {
+            return basicEnemyCombat('attack_dummy', draft)
+        })
+      } else {
+        return state;
+      }
+    }
   ];
   return state.addRoutines(routines);
 }

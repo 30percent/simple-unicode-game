@@ -27,18 +27,35 @@ export function doDamage(state: State, activeId: string) {
   return newState;
 }
 
+type objRange = {
+  person: Person | null,
+  distance: number
+};
 export function objectsInRange(state: State, activeId: string, range: number): string | null {
   let location = getCurrentLocation(state, activeId);
   let activeLoc = location.positionObjectAt(activeId);
-  let enemies = fp.filter((obj) => {
-    let id: string = obj[0];
-    let vect: Vector = obj[1];
-    if (
-      id != activeId
-      && state.groundObjects.get(id) instanceof Person
-      && manhattanH(activeLoc, vect) <= range) {
-      return true;
-    }
-  }, Array.from(location.objects))
-  return fp.get('[0][0]', enemies); // obviously not "closest" here...
+  let closestEnemy = fp.flow(
+    fp.map((obj): objRange => {
+      let id: string = obj[0];
+      let vect: Vector = obj[1];
+      let per = state.groundObjects.get(id)
+      if (
+        id != activeId
+        && per instanceof Person) {
+        return {
+          person: per,
+          distance: manhattanH(activeLoc, vect)
+        };
+      } else {
+        return {
+          person: null,
+          distance: manhattanH(activeLoc, vect)
+        }
+      }
+    }),
+    fp.sortBy((it) => it.distance),
+    fp.find((it) => it.distance <= range && it.person != null),
+    (it) => (it != null) ? it.person._id : null
+  )(Array.from(location.objects))
+  return closestEnemy;
 }

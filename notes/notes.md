@@ -11,6 +11,7 @@
 * ~~"Kill" Person on hp 0 (ignore in state, combat skips over)~~
 * Routines should support "prioritization"
 * Allow map config to reference a .json/.map for new Objects
+* Use doodads instead of just walls
 
 #Medium
 * Basic Dialog (Form on side?)
@@ -19,6 +20,7 @@
   * Set item active
 * Build out "City"
 * Drop inventory on death
+* Routines from config
 
 #Long
 * "Minion" interaction
