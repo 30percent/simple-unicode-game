@@ -10,6 +10,7 @@
 * Item pickup
 * ~~"Kill" Person on hp 0 (ignore in state, combat skips over)~~
 * Routines should support "prioritization"
+* Allow map config to reference a .json/.map for new Objects
 
 #Medium
 * Basic Dialog (Form on side?)
