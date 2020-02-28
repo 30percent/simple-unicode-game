@@ -21,11 +21,8 @@ export function createSampleRoutines(
     /* Combat Routine */(state: State): State => {
       let activeLocation: Place = getCurrentLocation(state, state.userId);
       if (activeLocation.combat_zone) {
-        let peopleInLoc = activeLocation.objects;
         return produce(state, (newState) => {
-          fp.forEach((o) => {
-            newState = doDamage(newState, o);
-          }, Array.from(peopleInLoc.keys()));
+          newState = doDamage(newState, state.userId);
           return newState;
         })
       } else {
@@ -63,25 +60,14 @@ export function createSampleRoutines(
     },
     (state: State) => {
       return moveUser(state);
-    },,
-    (state: State) => {
-      if (state.groundObjects.get('attack_dummy')){
-        return produce(state, (draft) => {
-            return basicEnemyCombat('attack_dummy', draft)
-        })
-      } else {
-        return state;
-      }
-    }
+    },
   ];
   return state.addRoutines(routines);
 }
 
 export async function initialiseState(): Promise<State> {
-  let startState = new State();
+  let startState = createSampleRoutines(new State());
   return parsePeople(startState).then((state) => {
     return parsePlaces(state)
-  }).then((nextState) => {
-    return createSampleRoutines(nextState);
   });
 }

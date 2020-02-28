@@ -13,6 +13,7 @@ import { State } from './classes/state';
 import { Inventory } from './classes/items/inventory';
 import { Weapon } from './classes/items/weapon';
 import { BaseItem } from './classes/items/item';
+import SettableRoutines from './classes/routines/settable-routines';
 
 async function fetchMap(loc: string) {
   return (await Axios.get(`static/config/places/${loc}`)).data as Promise<string>;
@@ -39,7 +40,11 @@ type PersonConfig = {
     range?: number,
     damage?: number,
     id: string,
-  }[]
+  }[];
+  routines?: Array<keyof typeof SettableRoutines>;
+}
+async function fetchPerson(per: string): Promise<PersonConfig> {
+  return (await Axios.get(`static/config/monsters/${per}`)).data as Promise<PersonConfig>;
 }
 async function fetchPeople(): Promise<PersonConfig[]> {
   let path = 'static/config/people.json';
@@ -80,6 +85,10 @@ async function parseObject(state: State, split: string[]) {
       let placeStr = await fetchMap(split[2]);
       state.groundObjects.set(split[1], new DummyObject())
       await parsePlace(state, {key: split[1], place: placeStr});
+    } else if (split[2].indexOf('.json') > 0) {
+      let person = await fetchPerson(split[2]);
+      person.id = split[1];
+      parsePerson(state, person);
     }
   }
 }
@@ -159,6 +168,11 @@ function parsePerson(state: State, confPer: PersonConfig) {
       }
     }, confPer.inventory)
     state.inventories.set(confPer.id, inv);
+  }
+  if (confPer.routines) {
+    confPer.routines.forEach((routine) => {
+      state.addRoutine(SettableRoutines[routine](confPer.id));
+    })
   }
 }
 

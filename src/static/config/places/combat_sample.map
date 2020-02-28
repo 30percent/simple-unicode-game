@@ -2,12 +2,13 @@ Combat Training
 Y
 combat_zone
 
-x x x x x x x
+x x x 3 x x x
 x o o o 1 o x
 x o x o o o x
 x o o o o o x
 x o o o o o x
 x x x 2 x x x
 
-1 attack_dummy
+1 attack_dummy training_dummy.json
 2 city city.map
+3 combat_sample_r2 combat_sample_r2.map
