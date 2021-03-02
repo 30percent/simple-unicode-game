@@ -1,17 +1,19 @@
 const path = require('path');
 const webpack = require('webpack')
+const _ = require('lodash');
 const DashboardPlugin = require('webpack-dashboard/plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const nodeEnv = process.env.NODE_ENV || 'development';
+const nodeEnv = !_.isEmpty(process.env.NODE_ENV) ? process.env.NODE_ENV : 'development';
+console.info(`Node Env: ${nodeEnv}`);
 const isProd = nodeEnv === 'production';
 
 module.exports = {
-  context: path.resolve('./src'),
   entry: {
-    app: './index.ts',
-    vendor: './vendor.ts'
+    app: './src/index.ts',
+    vendor: './src/vendor.ts'
   },
+  mode: nodeEnv,
   plugins: [
     new DashboardPlugin(), 
     new webpack.DefinePlugin({
@@ -22,7 +24,7 @@ module.exports = {
     }),
     new HtmlWebpackPlugin({
       title: 'Typescript Webpack Starter',
-      template: '!!ejs-loader!src/index.html'
+      template: 'src/index.html'
     }),
     // new webpack.optimize.CommonsChunkPlugin({
     //   name: 'vendor',
@@ -37,14 +39,15 @@ module.exports = {
             }
         }
     }),
-    new CopyWebpackPlugin(
-      [{
-        from: 'static',
-        to: 'static'
-      }], {
-        copyUnmodified: true
-      }
-    )
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: 'static',
+          to: 'static',
+          context: 'src/'
+        }
+      ]
+    })
   ],
   module: {
     rules: [
@@ -55,12 +58,10 @@ module.exports = {
       },
       {  
         test: /\.(ttf|eot|woff|woff2)$/,
-        loader: 'file-loader',
-        options: {
-        }
+        use: 'file-loader'
       },
-      { test: /\.html$/, loader: 'html-loader' },
-      { test: /\.css$/, loaders: ['style-loader', 'css-loader'] },
+      { test: /\.html$/, use: 'html-loader' },
+      { test: /\.css$/, use: ['style-loader', 'css-loader'] },
     ],
   },
   resolve: {

@@ -1,3 +1,3 @@
-import { GameObject } from './classes/interfaces/GameObject';
-export declare function parsePlaces(state: Map<string, GameObject>): Promise<Map<string, GameObject>>;
-export declare function parsePeople(state: Map<string, GameObject>): Promise<Map<string, GameObject>>;
+import { State } from './classes/state';
+export declare function parsePlaces(state: State): Promise<State>;
+export declare function parsePeople(state: State): Promise<State>;
