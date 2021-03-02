@@ -1,0 +1,17 @@
+Combat Training
+Y
+combat_zone
+
+x x x x x x x x x
+x o o o o o o o x
+x o 0 o o o o o x
+x o o o o o o o x
+x o o o o o 1 o x
+x o o o o o o o x
+x o o o o o o o x
+x o o o o o o o x
+x x x 2 x x x x x
+
+0 first_dummy training_dummy.json
+1 second_dummy training_dummy.json
+2 combat_sample

@@ -12,6 +12,7 @@ import { Place } from "./classes/location";
 
 import * as fp from 'lodash/fp';
 import { parsePeople, parsePlaces } from "./parseConfig";
+import { basicEnemyCombat } from "./classes/routines/basic-enemy-attack";
 
 export function createSampleRoutines(
   state: State
@@ -20,11 +21,8 @@ export function createSampleRoutines(
     /* Combat Routine */(state: State): State => {
       let activeLocation: Place = getCurrentLocation(state, state.userId);
       if (activeLocation.combat_zone) {
-        let peopleInLoc = activeLocation.objects;
         return produce(state, (newState) => {
-          fp.forEach((o) => {
-            newState = doDamage(newState, o);
-          }, Array.from(peopleInLoc.keys()));
+          newState = doDamage(newState, state.userId);
           return newState;
         })
       } else {
@@ -68,10 +66,8 @@ export function createSampleRoutines(
 }
 
 export async function initialiseState(): Promise<State> {
-  let startState = new State();
-  return parsePeople(startState).then(
-    parsePlaces
-  ).then((nextState) => {
-    return createSampleRoutines(nextState);
+  let startState = createSampleRoutines(new State());
+  return parsePeople(startState).then((state) => {
+    return parsePlaces(state)
   });
 }

@@ -22,7 +22,7 @@ export class Vector {
   }
 }
 
-export type LocationParams = {
+export type PlaceParams = {
   name: string;
   roomLimit: Vector;
   symbol?: string;
@@ -40,7 +40,7 @@ export class Place implements GameObject {
   roomLimit: Vector;
   combat_zone: boolean = false;
 
-  constructor(params: LocationParams) {
+  constructor(params: PlaceParams) {
     assign<Place, Partial<Place>>(
       this,
       {

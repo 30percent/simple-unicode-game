@@ -10,6 +10,8 @@
 * Item pickup
 * ~~"Kill" Person on hp 0 (ignore in state, combat skips over)~~
 * Routines should support "prioritization"
+* Allow map config to reference a .json/.map for new Objects
+* Use doodads instead of just walls
 
 #Medium
 * Basic Dialog (Form on side?)
@@ -18,6 +20,7 @@
   * Set item active
 * Build out "City"
 * Drop inventory on death
+* Routines from config
 
 #Long
 * "Minion" interaction
@@ -30,7 +33,9 @@
 
 # Cleanup | Maintenance
 * Fix garbage config code
-* Consider immer.js
+* ~~Consider immer.js~~
+* Improve immer integration, rely less on `place = place...`
+* Remove `Map<string, T>` (it complicates for no benefit)
 * ~~Improve "scenery" handling (walls)~~
 
 

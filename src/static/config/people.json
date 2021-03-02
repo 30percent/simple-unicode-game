@@ -23,19 +23,9 @@
         "id": "Spear",
         "type": "Weapon",
         "active": true,
-        "range": 1,
-        "damage": 1
+        "range": 2,
+        "damage": 2
       }
     ]
-  },
-  {
-    "name": "Dummy",
-    "id": "dummy",
-    "symbol": "⍚"
-  },
-  {
-    "name": "Mayor",
-    "id": "mayor",
-    "symbol": "M"
   }
 ]

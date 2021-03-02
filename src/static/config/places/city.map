@@ -8,14 +8,15 @@ o o o 6 o 5 o o o o
 2 o o o o o o o o o
 o o o o o o o o o o
 o o o o o o o o o o
-o o o o x x 3 x o o
+o 7 o o x x 3 x o o
 o o o o x x o o o o
 o o o o x x o 4 o o
 
 0 delilah
 1 mary
 2 jack
-3 home
+3 home home.map
 4 margaret
-5 town_hall
-6 dummy_combat
+5 town_hall town_hall.map
+6 dummy_combat dummy_combat.map
+7 combat_sample combat_sample.map

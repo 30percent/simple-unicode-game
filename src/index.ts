@@ -59,27 +59,35 @@ export default class Main {
       };
       tickTimer = startTicking(startState, startLocation, domHandling);
       document.addEventListener('keyup', (event) => {
-        moveYou(__directionFromKey(event));
+        let movin = __directionFromKey(event);
+        moveYou(movin.dir, movin.dist);
         if (tickTimer == null) {
-          manualTick(nextState, domHandling);
+          if (movin.dir != null) manualTick(nextState, domHandling);
         }
       });
     });
   }
 }
-function __directionFromKey(event: KeyboardEvent): Direction {
+function __directionFromKey(event: KeyboardEvent): {dir: Direction, dist: number} {
+  let dir: Direction, dist: number;
+  dist = (event.shiftKey == true) ? 2 : 1;
   switch (event.keyCode) {
     case 37:
-      return Direction.Left;
+      dir = Direction.Left;
+      break;
     case 38:
-      return Direction.Up;
+      dir = Direction.Up;
+      break;
     case 39:
-      return Direction.Right;
+      dir = Direction.Right;
+      break;
     case 40:
-      return Direction.Down;
+      dir = Direction.Down;
+      break;
     default:
-      return null;
+      dir = null;
   }
+  return {dir, dist};
 }
 
 let start = new Main();

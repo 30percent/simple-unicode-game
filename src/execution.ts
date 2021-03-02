@@ -44,7 +44,7 @@ export function startTicking(
     if (count > 0 && iter >= count) {
       clearInterval(interval);
     }
-    console.log(`Ran tick: ${iter}/${count}`)
+    // console.log(`Ran tick: ${iter}/${count}`)
   }
   interval = setInterval(_next, time);
   return interval;

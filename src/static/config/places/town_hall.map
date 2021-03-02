@@ -1,6 +1,5 @@
-Dummy Combat
-⍯
-combat_zone
+Town Hall
+⍝
 
 x x x x x x x
 x o o o o o x
@@ -9,5 +8,5 @@ x o o o o o x
 x o o o o o x
 x x x 0 x x x
 
-0 city
-1 dummy
+0 city city.map
+1 mayor "Mayor" M

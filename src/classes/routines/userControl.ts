@@ -7,8 +7,11 @@ import * as fp from 'lodash/fp';
 
 // A bit complicated to mess around with this within state confines.
 let toMove: Direction = null;
-export function moveYou(direction: Direction) {
-  if (!isNil(direction)) toMove = direction;
+let toMoveDist: number = 0;
+export function moveYou(direction: Direction, dist: number) {
+  if (!isNil(direction)) { toMove = direction; }
+  if (dist != null) { toMoveDist = dist; }
+  else {dist = 1;}
 }
 export function moveUser(oldState: State) {
   let newState = fp.clone(oldState);
@@ -19,7 +22,7 @@ export function moveUser(oldState: State) {
       location,
       oldState.userId,
       toMove,
-      1,
+      toMoveDist,
     );
     if (locations.firstLoc) {
       newState.groundObjects.set(locations.firstLoc._id, locations.firstLoc);

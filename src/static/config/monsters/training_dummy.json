@@ -1,0 +1,16 @@
+{
+  "name": "Attack Dummy",
+  "symbol": "A",
+  "inventory": [
+    {
+      "id": "Short Sword",
+      "type": "Weapon",
+      "active": true,
+      "range": 1,
+      "damage": 1
+    }
+  ],
+  "routines": [
+    "approachPlayer"
+  ]
+}
