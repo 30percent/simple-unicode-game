@@ -1,8 +1,7 @@
 import { Person } from "../person";
 import PriorityQueue from 'tinyqueue';
 import { Vector, Place, getLocationMatrix } from "../location";
-import { forEach, get, filter, map } from "lodash";
-import { isObject } from "util";
+import { forEach, get, filter, map, isObject, has } from "lodash";
 
 type QueueEntry = {
   loc: Vector;
@@ -13,6 +12,9 @@ export function manhattanH(start: Vector, goal: Vector) {
 }
 function getMatItem(matrix: number[][], vector: Vector) {
   return get(matrix, `[${vector.x}][${vector.y}]`)
+}
+function isVector(v: unknown): v is Vector {
+  return isObject(v) && has(v, 'x')
 }
 function matNeighbors(matrix: number[][], vector: Vector): Vector[] {
   let matR: Vector[] = [];
@@ -26,7 +28,7 @@ function matNeighbors(matrix: number[][], vector: Vector): Vector[] {
     map(potentials, (path) => {
       return getMatItem(matrix, path) ? path : null
     }),
-    isObject
+    isVector
   )
 }
 export function getPath(location: Place, person: Person, destination: Vector): Vector[] {
