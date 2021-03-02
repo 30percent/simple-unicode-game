@@ -5,8 +5,8 @@
   "author": "Mark Todd",
   "license": "MIT",
   "dependencies": {
-    "@types/bluebird": "^3.5.29",
-    "axios": "^0.19.2",
+    "@types/bluebird": "^3.5.33",
+    "axios": "^0.21.1",
     "bluebird": "^3.7.2",
     "copy-webpack-plugin": "^5.1.1",
     "css-loader": "^3.4.2",
@@ -37,9 +37,9 @@
     "server:dev": "webpack-dashboard -- webpack-dev-server --config ./webpack.config.js --hot --inline --progress --watch --open"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.149",
-    "@types/webpack": "^4.41.6",
-    "@types/webpack-env": "^1.15.1",
+    "@types/lodash": "^4.14.168",
+    "@types/webpack": "^4.41.26",
+    "@types/webpack-env": "^1.16.0",
     "http-server": "^0.12.1",
     "webpack": "^4.41.6",
     "webpack-cli": "^3.3.11",
