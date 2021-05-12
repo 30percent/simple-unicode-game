@@ -18,12 +18,12 @@ export default class Main {
     let initState = initialiseState();
     // TODO: Move this out to separate handlers.
     initState.then((startState) => {
-      let userId = getObjectByPred(startState, (obj) => obj.symbol === 'J')._id;
+      let userId = startState.userId;
       let startLocation: Place = getCurrentLocation(startState, userId);
       let nextState: State = startState; // TODO: integrate all the "state progress" properly.
       let tickTimer: number = null;
       let domHandling = (curState: State) => {
-        let curLocation = getCurrentLocation(curState, userId);
+        let curLocation = getCurrentLocation(curState, curState.userId);
         document.getElementById('person-info').innerHTML = fp
           .filter((obj) => {
             return obj instanceof Person && curLocation.objects.has(obj._id);
@@ -71,6 +71,7 @@ export default class Main {
 
       document.getElementById('playables').addEventListener("change", (ev: Event) => {
         UserControls.changeActive((ev.target as HTMLSelectElement).value);
+        (ev.target as HTMLSelectElement).blur();
       });
     });
   }
