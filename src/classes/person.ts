@@ -11,6 +11,7 @@ export type PersonParams = {
   hp: number;
   symbol?: string;
   _id?: string;
+  playable: boolean;
 };
 
 export class Person
@@ -20,6 +21,7 @@ export class Person
   _id: string;
   name: string;
   healthStatuses: Set<HealthStatus>;
+  playable: boolean;
 
   constructor(params: PersonParams) {
     assign<Person, Partial<Person>>(

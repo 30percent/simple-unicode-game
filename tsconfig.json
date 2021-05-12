@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es2019",
     "module": "commonjs",
     "declaration": true,
     "sourceMap": true,
@@ -8,7 +8,7 @@
     "downlevelIteration": true,
     "experimentalDecorators": true,
     "lib": [
-      "es2015",
+      "es2019",
       "dom"
     ],
     "noImplicitAny": true,

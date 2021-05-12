@@ -7,3 +7,4 @@
 * Enemy "routines", for example:
   * move to target "at speed"
   * set active 'weapon' (attack) based on distance
+* Movement options (sprint, jump)

@@ -1,6 +1,6 @@
 import { State, Routine, getCurrentLocation } from "./classes/state";
 import { filterMapValue } from "./utils/mapUtils";
-import { moveUser } from "./classes/routines/userControl";
+import { UserControls } from "./classes/routines/userControl";
 import produce from "immer";
 import { Person } from "./classes/person";
 import { findMapValue } from "./utils/mapUtils";
@@ -59,8 +59,15 @@ export function createSampleRoutines(
       return state;
     },
     (state: State) => {
-      return moveUser(state);
+      return UserControls.moveUser(state);
     },
+    (state: State) => {
+      if (!fp.isNil(UserControls.activeUser)) {
+        return produce(state, (draft) => {
+          draft.userId = UserControls.activeUser;
+        })
+      } else return state;
+    }
   ];
   return state.addRoutines(routines);
 }

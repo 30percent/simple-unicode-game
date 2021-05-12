@@ -41,6 +41,7 @@ type PersonConfig = {
     damage?: number,
     id: string,
   }[];
+  playable?: boolean;
   routines?: Array<keyof typeof SettableRoutines>;
 }
 async function fetchPerson(per: string): Promise<PersonConfig> {
@@ -77,7 +78,8 @@ async function parseObject(state: State, split: string[]) {
         _id: split[1],
         name: split[2],
         symbol: split[3],
-        hp: 10
+        hp: 10,
+        playable: false
       })
     state.groundObjects.set(p._id, p);
   } else if (split.length == 3) {
@@ -153,10 +155,11 @@ function parsePerson(state: State, confPer: PersonConfig) {
     _id: confPer.id,
     name: confPer.name,
     symbol: confPer.symbol,
+    playable: confPer.playable === true,
     hp: 10
   }));
+  let inv = new Inventory();
   if (confPer.inventory != null) {
-    let inv = new Inventory();
     fp.forEach((it) => {
       switch(it.type) {
         case 'Weapon': 
@@ -167,8 +170,8 @@ function parsePerson(state: State, confPer: PersonConfig) {
           inv.addItem(new BaseItem({_id: it.id, name: it.id}));
       }
     }, confPer.inventory)
-    state.inventories.set(confPer.id, inv);
   }
+  state.inventories.set(confPer.id, inv);
   if (confPer.routines) {
     confPer.routines.forEach((routine) => {
       state.addRoutine(SettableRoutines[routine](confPer.id));
