@@ -1,4 +1,5 @@
 import { GameObject } from "./interfaces/GameObject";
+import { UserControls } from "./routines/userControl";
 import * as fp from 'lodash/fp';
 import { find } from 'lodash';
 import { Place } from "./location";
@@ -13,6 +14,7 @@ export class State {
   inventories: Map<string, Inventory>;
   routines: Routine[];
   userId: string = 'jack';
+  userActions: Routine[];
   // add Routines
   constructor() {
     this.groundObjects = new Map();
@@ -74,6 +76,8 @@ export function progressRoutines(state: State): State {
     newState.routines.forEach((act) => {
       newState = act(newState);
     });
+    // cleanup
+    UserControls.clearActivity();
     return newState;
   })
 }

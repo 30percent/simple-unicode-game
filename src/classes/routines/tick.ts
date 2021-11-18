@@ -4,7 +4,7 @@ export async function tickFoo(
   count: number,
   time: number,
   tickAction: Function,
-): BlueProm<any> {
+): Promise<any> {
   let iter = 0;
   return new BlueProm((resolve, _reject) => {
     let interval: any;

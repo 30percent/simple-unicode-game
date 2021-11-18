@@ -9,7 +9,7 @@ import { Person } from './classes/person';
 import { getPath } from "./classes/routines/path";
 import { parsePlaces, parsePeople } from "./parseConfig";
 import { initialiseState } from "./init";
-import { moveYou } from "./classes/routines/userControl";
+import { UserControls } from "./classes/routines/userControl";
 
 const css = require('./main.css');
 
@@ -18,12 +18,12 @@ export default class Main {
     let initState = initialiseState();
     // TODO: Move this out to separate handlers.
     initState.then((startState) => {
-      let userId = getObjectByPred(startState, (obj) => obj.symbol === 'J')._id;
+      let userId = startState.userId;
       let startLocation: Place = getCurrentLocation(startState, userId);
       let nextState: State = startState; // TODO: integrate all the "state progress" properly.
       let tickTimer: number = null;
       let domHandling = (curState: State) => {
-        let curLocation = getCurrentLocation(curState, userId);
+        let curLocation = getCurrentLocation(curState, curState.userId);
         document.getElementById('person-info').innerHTML = fp
           .filter((obj) => {
             return obj instanceof Person && curLocation.objects.has(obj._id);
@@ -51,37 +51,73 @@ export default class Main {
           }
         }
         document.getElementById(
-          'user-inventory'
-        ).innerHTML = startState.inventories.get(startState.userId).asString();
-        document.getElementById(
           'first-location',
         ).innerHTML = locationHTML;
+        document.getElementById(
+          'user-inventory'
+        ).innerHTML = curState.inventories.get(curState.userId).asString();
+        updateActors(curState); // evidence that I need a bloody "UI" class
       };
+      
       tickTimer = startTicking(startState, startLocation, domHandling);
+
       document.addEventListener('keyup', (event) => {
         let movin = __directionFromKey(event);
-        moveYou(movin.dir, movin.dist);
+        UserControls.moveYou(movin.dir, movin.dist);
         if (tickTimer == null) {
           if (movin.dir != null) manualTick(nextState, domHandling);
         }
       });
+
+      document.getElementById('playables').addEventListener("change", (ev: Event) => {
+        UserControls.changeActive((ev.target as HTMLSelectElement).value);
+        (ev.target as HTMLSelectElement).blur();
+      });
     });
   }
 }
+
+function updateInventory(state: State) {
+
+}
+
+function updateActors(state: State) {
+  let playables = fp.flow(
+    fp.filter((o: GameObject) => {
+      return o instanceof Person && o.playable 
+    }),
+    fp.map((o: Person) => {
+      return {
+        id: o._id,
+        name: o.name
+      }
+    })
+  )(Object.fromEntries(state.groundObjects));
+  let newActorHTML = fp.sortBy('id', playables).map((user) => `<option value="${user.id}">${user.name}</option>`).join('');
+  let oldActorHTML = document.getElementById(
+    'playables'
+  ).innerHTML;
+  if (!fp.isEqual(oldActorHTML, newActorHTML)) {
+    document.getElementById(
+      'playables'
+    ).innerHTML = newActorHTML;
+  }
+}
+
 function __directionFromKey(event: KeyboardEvent): {dir: Direction, dist: number} {
   let dir: Direction, dist: number;
   dist = (event.shiftKey == true) ? 2 : 1;
-  switch (event.keyCode) {
-    case 37:
+  switch (event.key) {
+    case "ArrowLeft":
       dir = Direction.Left;
       break;
-    case 38:
+    case "ArrowUp":
       dir = Direction.Up;
       break;
-    case 39:
+    case "ArrowRight":
       dir = Direction.Right;
       break;
-    case 40:
+    case "ArrowDown":
       dir = Direction.Down;
       break;
     default:
