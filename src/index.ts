@@ -10,7 +10,6 @@ import { getPath } from "./classes/routines/path";
 import { parsePlaces, parsePeople } from "./parseConfig";
 import { initialiseState } from "./init";
 import { UserControls } from "./classes/routines/userControl";
-
 const css = require('./main.css');
 
 export default class Main {
@@ -74,6 +73,7 @@ export default class Main {
         (ev.target as HTMLSelectElement).blur();
       });
     });
+
   }
 }
 
