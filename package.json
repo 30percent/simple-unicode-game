@@ -18,6 +18,7 @@
     "immer": "^5.3.6",
     "lodash": "^4.17.21",
     "pretty-quick": "^2.0.2",
+    "spritejs": "^3.7.38",
     "style-loader": "^2.0.0",
     "tinyqueue": "^2.0.3",
     "ts-loader": "^8.0.17",

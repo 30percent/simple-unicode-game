@@ -8,11 +8,15 @@ const nodeEnv = !_.isEmpty(process.env.NODE_ENV) ? process.env.NODE_ENV : 'devel
 console.info(`Node Env: ${nodeEnv}`);
 const isProd = nodeEnv === 'production';
 
+const entries = {
+  app: './src/index.ts',
+  vendor: './src/vendor.ts',
+  sprite: './src/entry/sprite_test.ts',
+  grid_w_sprite: './src/entry/grid_w_sprite.ts'
+}
+
 module.exports = {
-  entry: {
-    app: './src/index.ts',
-    vendor: './src/vendor.ts'
-  },
+  entry: entries,
   mode: nodeEnv,
   plugins: [
     new DashboardPlugin(), 
@@ -24,7 +28,22 @@ module.exports = {
     }),
     new HtmlWebpackPlugin({
       title: 'Typescript Webpack Starter',
-      template: 'src/index.html'
+      template: 'src/index.html',
+      chunks: ['app', 'vendor']
+    }),
+    new HtmlWebpackPlugin({
+      inject: true,
+      title: 'Sprite Testing',
+      template: 'src/entry/sprite.html',
+      chunks: ['sprite', 'vendor'],
+      filename: 'sprite/index.html'
+    }),
+    new HtmlWebpackPlugin({
+      inject: true,
+      title: 'Sprite Testing',
+      template: 'src/entry/grid_w_sprite.html',
+      chunks: ['grid_w_sprite', 'vendor'],
+      filename: 'grid_w_sprite/index.html'
     }),
     // new webpack.optimize.CommonsChunkPlugin({
     //   name: 'vendor',
