@@ -26,13 +26,14 @@ export default class Main {
       if (_.isNil(this.scene) || _.isNil(movin)) return;
       const character: spritejs.Sprite = this.scene.getElementById('character') as spritejs.Sprite;
       
-      this.activeKeys.push(movin.dir);
       if (
-        _.isNil(character)
+        this.activeKeys.indexOf(movin.dir) >= 0
+        || _.isNil(character)
       ) {
         return;
       }
       // there has to be a better way :thinking:
+      this.activeKeys.push(movin.dir);
       this.tweenGroup.removeAll();
       this.genTween(character, this.activeKeys);
     });
@@ -46,6 +47,7 @@ export default class Main {
       const movin = __directionFromKey(event);
       this.activeKeys = this.activeKeys.filter(k => k != movin.dir);
 
+      this.tweenGroup.getAll().forEach(f => f.stop());
       this.tweenGroup.removeAll();
       const character = this.scene.getElementById('character') as spritejs.Sprite;
       if (this.activeKeys.length > 0 && !_.isNil(character)) {
@@ -88,9 +90,13 @@ export default class Main {
           y: tweenO.y
         })
       })
+      .onStop(() => {
+        sprite.attr({
+          texture: `walk_${dirStr}_${0}.png`
+        })
+      })
       .repeat(Infinity)
       .start();
-    newTween.getId
   }
 
   private animate = () => {
