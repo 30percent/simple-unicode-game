@@ -33,7 +33,7 @@ const mapping = {
   }
 }
 console.info(SpriteOutputGen)
-const output = SpriteOutputGen.getSprite(gridSize, mapping)
+const output = SpriteOutputGen.getSprite({gridSize}, mapping)
 
 fs.writeFile(
   `${__dirname}/../../src/static/sprites/hyptosis_sprites-1.json`,

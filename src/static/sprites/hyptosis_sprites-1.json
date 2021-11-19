@@ -9,16 +9,6 @@
         "rotated": false,
         "trimmed": false
       },
-      "spriteSourceSize": {
-        "x": 0,
-        "y": 224,
-        "w": 32,
-        "h": 64
-      },
-      "sourceSize": {
-        "w": 32,
-        "h": 64
-      },
       "pivot": {
         "x": 0.5,
         "y": 0.5
@@ -32,16 +22,6 @@
         "h": 64,
         "rotated": false,
         "trimmed": false
-      },
-      "spriteSourceSize": {
-        "x": 128,
-        "y": 224,
-        "w": 32,
-        "h": 64
-      },
-      "sourceSize": {
-        "w": 32,
-        "h": 64
       },
       "pivot": {
         "x": 0.5,
@@ -57,16 +37,6 @@
         "rotated": false,
         "trimmed": false
       },
-      "spriteSourceSize": {
-        "x": 0,
-        "y": 160,
-        "w": 32,
-        "h": 64
-      },
-      "sourceSize": {
-        "w": 32,
-        "h": 64
-      },
       "pivot": {
         "x": 0.5,
         "y": 0.5
@@ -74,22 +44,12 @@
     },
     "barbarian.png": {
       "frame": {
-        "x": 96,
+        "x": 128,
         "y": 160,
         "w": 32,
         "h": 64,
         "rotated": false,
         "trimmed": false
-      },
-      "spriteSourceSize": {
-        "x": 96,
-        "y": 160,
-        "w": 32,
-        "h": 64
-      },
-      "sourceSize": {
-        "w": 32,
-        "h": 64
       },
       "pivot": {
         "x": 0.5,

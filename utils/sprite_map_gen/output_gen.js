@@ -1,8 +1,11 @@
+const _ = require('lodash');
+
 class SpriteOutputGen {
-  static getSprite(gridSize, mapping) {
+  static getSprite({gridSize, pivot}, mapping) {
     const output = {
       frames: {}
     };
+    pivot = _.isNil(pivot) ? {x: .5, y: .5} : pivot;
     Object.keys(mapping).forEach(name => {
       const obj = mapping[name];
       const remapped = {
@@ -24,11 +27,7 @@ class SpriteOutputGen {
         //   w: obj.w * gridSize.w,
         //   h: obj.h * gridSize.h,
         // },
-        pivot: {
-          // TODO: handle alternate alignments,
-          x: .5,
-          y: .5
-        }
+        pivot: pivot
       }
       output.frames[name + ".png"] = remapped;
     })

@@ -48,7 +48,7 @@ mapping['ladder_hole_1'] = {
 //   }
 // }
 console.info(SpriteOutputGen)
-const output = SpriteOutputGen.getSprite(gridSize, mapping)
+const output = SpriteOutputGen.getSprite({gridSize}, mapping)
 
 fs.writeFile(
   `${__dirname}/../../src/static/tilesets/hyptosis_tile-art-batch-1.json`,
